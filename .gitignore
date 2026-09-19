@@ -10,3 +10,4 @@ DESIGN-CONSIDERATIONS.MD
 release.test.yaml
 *.tar.gz
 test.sh
+.DS_Store

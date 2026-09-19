@@ -39,7 +39,16 @@ public class ReleaseConfiguration: IValidatableObject
     public PublishToNuGetConfiguration? PublishToNuGet { get; init; }
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
     public DockerConfiguration? Docker { get; init; }
-    public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; }
+
+    public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; } = new ParseReleaseTypesConfiguration
+    {
+        BranchRequirements = new Dictionary<ReleaseType, BranchRequirement>()
+        {
+            [ReleaseType.Stable] = new() {DoesNotContain = string.Empty, StartWiths = "release/"},
+            [ReleaseType.Nightly] = new() {DoesNotContain = "canary/", StartWiths = ""},
+            [ReleaseType.Canary] = new() {DoesNotContain = string.Empty, StartWiths = "canary/"},
+        }
+    };
 
     public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
     {
