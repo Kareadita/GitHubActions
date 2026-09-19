@@ -9,6 +9,7 @@ using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Commands.ExternalCommands;
 using Kavita.ReleaseTools.Models;
+using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.VersionBump;
@@ -35,6 +36,7 @@ services.AddSingleton<IProcessRunner, ProcessRunner>();
 services.AddScoped<IStage, VersionBumpStage>();
 services.AddScoped<IStage, GenerateOpenApiStage>();
 services.AddScoped<IStage, FlushGitChangesStage>();
+services.AddScoped<IStage, BuildFrontendStage>();
 
 var provider = services.BuildServiceProvider();
 

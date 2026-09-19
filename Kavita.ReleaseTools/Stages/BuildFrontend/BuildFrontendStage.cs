@@ -1,0 +1,97 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Commands.ExternalCommands;
+using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
+using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
+
+namespace Kavita.ReleaseTools.Stages.BuildFrontend;
+
+public class BuildFrontendStage(ILogger<BuildFrontendStage> logger, IProcessRunner runner) : ConfiguredStage<BuildFrontendConfiguration>(logger)
+{
+    private const string Npm = "npm";
+    public override string Name => nameof(BuildFrontendStage);
+    protected override BuildFrontendConfiguration? GetConfiguration(ReleaseConfiguration configuration)
+    {
+        return configuration.BuildFrontend;
+    }
+
+    protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, BuildFrontendConfiguration config)
+    {
+        List<ValidationIssue> issues = [];
+
+        if (string.IsNullOrEmpty(config.Path))
+            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.Path)}] must be specified"));
+        else if (!ctx.FileSystem.Directory.Exists(config.Path))
+            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.Path)}] The path «{config.Path}» cannot be found"));
+
+        if (string.IsNullOrEmpty(config.BuildScript))
+            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.BuildScript)}] must be specified"));
+
+        if (string.IsNullOrEmpty(config.OutputPath))
+            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.OutputPath)}] must be specified"));
+
+        return issues;
+    }
+
+    protected override async Task ExecuteAsync(ExecutionContext ctx, BuildFrontendConfiguration config, CancellationToken ct)
+    {
+        var buildCommand = new ProcessCommand.Builder(runner)
+            .WithExecutable(Npm)
+            .WithArguments("run", config.BuildScript)
+            .WithWorkingDirectory(config.Path)
+            .Build();
+
+        await buildCommand.RunAsync(ctx, ct);
+
+        if (string.IsNullOrEmpty(config.CopyTo))
+            return;
+
+        var destination = config.CopyTo;
+
+        if (config.FullReplace && ctx.FileSystem.Directory.Exists(destination))
+        {
+            logger.LogDebug("FullReplace enabled, deleting {Destination}", destination);
+            ctx.FileSystem.Directory.Delete(destination, recursive: true);
+        }
+
+        if (!ctx.FileSystem.Directory.Exists(destination))
+        {
+            logger.LogDebug("Moving {Source} to {Destination}", config.OutputPath, destination);
+            ctx.FileSystem.Directory.Move(config.OutputPath, destination);
+            return;
+        }
+
+        logger.LogDebug("Merging {Source} into {Destination}", config.OutputPath, destination);
+        CopyDirectory(ctx, config.OutputPath, destination);
+        ctx.FileSystem.Directory.Delete(config.OutputPath, recursive: true);
+    }
+
+    private static void CopyDirectory(ExecutionContext ctx, string source, string destination)
+    {
+        ctx.FileSystem.Directory.CreateDirectory(destination);
+
+        foreach (var file in ctx.FileSystem.Directory.GetFiles(source))
+        {
+            var fileName = ctx.FileSystem.Path.GetFileName(file);
+            var target = ctx.FileSystem.Path.Combine(destination, fileName);
+            ctx.FileSystem.File.Copy(file, target, overwrite: true);
+        }
+
+        foreach (var dir in ctx.FileSystem.Directory.GetDirectories(source))
+        {
+            var dirName = ctx.FileSystem.Path.GetFileName(dir);
+            var target = ctx.FileSystem.Path.Combine(destination, dirName);
+            if (ctx.FileSystem.Directory.Exists(target))
+            {
+                CopyDirectory(ctx, dir, target);
+            }
+            else
+            {
+                ctx.FileSystem.Directory.Move(dir, target);
+            }
+        }
+    }
+}
