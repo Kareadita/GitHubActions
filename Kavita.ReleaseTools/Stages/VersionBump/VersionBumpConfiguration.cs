@@ -2,17 +2,38 @@ using Kavita.ReleaseTools.Api;
 
 namespace Kavita.ReleaseTools.Stages.VersionBump;
 
+/// <summary>
+/// A stage that allows you to bump the AssemblyVersion in a .csproj file
+/// </summary>
 public class VersionBumpConfiguration: IStageConfiguration
 {
-    public required bool Disable { get; set; }
+    /// <inheritdoc/>
+    public required bool Disable { get; init; }
 
-    public required VersionComponent ComponentToBump { get; set; }
+    /// <summary>
+    /// Should this stage create a seperate commit
+    /// </summary>
+    public bool Commit { get; init; } = false;
 
-    public bool ResetSmallerComponents { get; set; }
+    /// <summary>
+    /// Which part of the version should be bumped
+    /// </summary>
+    public required VersionComponent ComponentToBump { get; init; }
 
-    public required string CsprojPath { get; set; }
+    /// <summary>
+    /// Should parts of the version smaller than <see cref="ComponentToBump"/> be reinit to 0
+    /// </summary>
+    public bool ResetSmallerComponents { get; init; }
 
-    public string? CommitMessage { get; set; }
+    /// <summary>
+    /// Path the to .csproj file that contains the version to bump
+    /// </summary>
+    public required string CsprojPath { get; init; }
+
+    /// <summary>
+    /// Custom commit message. Only relevant if <see cref="Commit"/> is true
+    /// </summary>
+    public string? CommitMessage { get; init; }
 }
 
 public enum VersionComponent

@@ -2,5 +2,8 @@ namespace Kavita.ReleaseTools.Api;
 
 public interface IStageConfiguration
 {
-    public bool Disable {  get; set; }
+    /// <summary>
+    /// Disable the stage, while keeping the configuraiton
+    /// </summary>
+    public bool Disable {  get; init; }
 }

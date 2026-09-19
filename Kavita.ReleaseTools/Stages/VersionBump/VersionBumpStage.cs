@@ -66,12 +66,18 @@ public partial class VersionBumpStage : ConfiguredStage<VersionBumpConfiguration
         var updated = SetAssemblyVersion(content, newVersion);
         await ctx.FileSystem.File.WriteAllTextAsync(config.CsprojPath, updated, ct);
 
-        var commitCommand = new GitCommitCommand.Builder()
-            .WithCommitMessage(config.CommitMessage ?? "Bump Version")
-            .WithCommitOptions(new CommitOptions { AllowEmptyCommit = false })
-            .WithFile(config.CsprojPath)
-            .Build();
-        await commitCommand.RunAsync(ctx, ct);
+
+        if (config.Commit)
+        {
+            var commitCommand = new GitCommitCommand.Builder()
+                .WithCommitMessage(config.CommitMessage ?? "Bump Version")
+                .WithCommitOptions(new CommitOptions { AllowEmptyCommit = false })
+                .WithFile(config.CsprojPath)
+                .Build();
+            await commitCommand.RunAsync(ctx, ct);
+        }
+
+        ctx.ReleaseVersion = newVersion;
     }
 
     private static Version? ReadAssemblyVersion(string content)
