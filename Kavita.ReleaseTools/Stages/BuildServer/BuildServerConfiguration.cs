@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
+using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace Kavita.ReleaseTools.Stages.BuildServer;
 
@@ -9,6 +11,9 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
 {
     /// <inheritdoc/>
     public bool Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     [Required(ErrorMessage = "SlnPath is required")]
     public required string SlnPath { get; init; }

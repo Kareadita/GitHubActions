@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.NotifyDiscord;
 
@@ -7,6 +9,9 @@ public class NotifyDiscordConfiguration: IStageConfiguration
 {
     /// <inheritdoc/>
     public bool Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     /// <summary>
     /// Webhook the release notification is posted to. Comes from the <c>DISCORD_WEBHOOK</c>

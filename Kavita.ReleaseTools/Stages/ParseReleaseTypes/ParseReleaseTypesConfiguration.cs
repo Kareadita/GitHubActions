@@ -10,6 +10,9 @@ public class ParseReleaseTypesConfiguration: IStageConfiguration
     /// <inheritdoc/>
     public bool Disabled { get; init; }
 
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
+
     [Required]
     public required Dictionary<ReleaseType, BranchRequirement> BranchRequirements { get; init; }
 }

@@ -11,6 +11,9 @@ public class DockerConfiguration: IStageConfiguration
     /// <inheritdoc/>
     public bool Disabled { get; init; }
 
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
+
     [Required]
     public bool Push { get; init; } = false;
 

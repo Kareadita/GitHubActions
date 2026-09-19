@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.BuildFrontend;
 
@@ -7,6 +9,9 @@ public class BuildFrontendConfiguration: IStageConfiguration
 {
     /// <inheritdoc/>
     public bool Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     [Required(ErrorMessage = "Path is required")]
     public required string Path { get; init; }

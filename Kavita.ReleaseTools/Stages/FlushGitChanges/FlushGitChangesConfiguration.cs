@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.FlushGitChanges;
 
@@ -11,6 +12,9 @@ public class FlushGitChangesConfiguration: IStageConfiguration
 {
     /// <inheritdoc/>
     public bool Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     /// <summary>
     /// Branch to commit the changes to

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.VersionBump;
 
@@ -10,6 +12,9 @@ public class VersionBumpConfiguration: IStageConfiguration
 {
     /// <inheritdoc/>
     public required bool Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     /// <summary>
     /// Should this stage create a seperate commit
