@@ -54,8 +54,6 @@ var stages = provider.GetServices<IStage>().ToList();
 var fs = new FileSystem();
 var configuration = ConfigurationReader.Read(fs, args);
 
-ConfigurationReader.Validate(configuration);
-
 var validationContext = new ValidationContext
 {
     FileSystem = fs,

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO.Abstractions;
 using System.Linq;
 using Kavita.ReleaseTools.Models;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Kavita.ReleaseTools;
@@ -32,13 +33,26 @@ public static class ConfigurationReader
             .WithCaseInsensitivePropertyMatching()
             .Build();
 
-        var configuration = deserializer.Deserialize<ReleaseConfiguration>(yaml);
+        ReleaseConfiguration configuration;
+        try
+        {
+            configuration = deserializer.Deserialize<ReleaseConfiguration>(yaml);
+        }
+        catch (YamlException ex)
+        {
+            FailureReport.Render(nameof(ConfigurationReader), ex);
+            Environment.Exit(1);
+            return null!; // Not reached
+        }
+
         EnvironmentConfigurationBinder.Apply(configuration);
+
+        Validate(configuration);
 
         return configuration;
     }
 
-    public static void Validate(ReleaseConfiguration configuration)
+    private static void Validate(ReleaseConfiguration configuration)
     {
         System.ComponentModel.DataAnnotations.ValidationContext ctx = new(configuration);
         var results = new List<ValidationResult>();
