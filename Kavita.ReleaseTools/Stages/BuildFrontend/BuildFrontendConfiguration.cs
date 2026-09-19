@@ -24,4 +24,9 @@ public class BuildFrontendConfiguration: IStageConfiguration
     /// overwriting files that already exist.
     /// </summary>
     public bool FullReplace { get; set; } = false;
+
+    /// <summary>
+    /// Should legacy peer dep be enabled when installing dependencies
+    /// </summary>
+    public bool AllowLegacyPeerDeps { get; init; } = false;
 }

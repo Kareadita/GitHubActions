@@ -57,15 +57,10 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             .Build()
             .RunAsync(ctx, ct);
 
-        List<string> arguments = ["publish", config.CsprojPath, "-c", config.Configuration, "--no-restore", "--runtime", rid, "-o", outputPath];
-        if (config.SelfContained)
-        {
-            arguments.Add("--self-contained");
-        }
-
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
-            .WithArguments([.. arguments])
+            .WithArguments("publish", config.CsprojPath, "-c", config.Configuration, "--no-restore", "--runtime", rid, "-o", outputPath)
+            .AppendArgumentIf(config.SelfContained, "--self-contained")
             .Build()
             .RunAsync(ctx, ct);
 

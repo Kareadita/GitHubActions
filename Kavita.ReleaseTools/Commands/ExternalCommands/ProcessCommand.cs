@@ -51,6 +51,14 @@ public class ProcessCommand: RunnableCommand
             return this;
         }
 
+        public Builder AppendArgumentIf(bool condition, string argument)
+        {
+            if (condition)
+                _arguments.Add(argument);
+
+            return this;
+        }
+
         public Builder WithWorkingDirectory(string? workingDirectory)
         {
             _workingDirectory = workingDirectory;

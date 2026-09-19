@@ -30,13 +30,19 @@ public class BuildFrontendStage(ILogger<BuildFrontendStage> logger, IProcessRunn
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, BuildFrontendConfiguration config, CancellationToken ct)
     {
-        var buildCommand = new ProcessCommand.Builder(runner)
+        await new ProcessCommand.Builder(runner)
+            .WithExecutable(Npm)
+            .WithArguments("ci")
+            .AppendArgumentIf(config.AllowLegacyPeerDeps, "--legacy-peer-deps")
+            .Build()
+            .RunAsync(ctx, ct);
+
+        await new ProcessCommand.Builder(runner)
             .WithExecutable(Npm)
             .WithArguments("run", config.BuildScript)
             .WithWorkingDirectory(config.Path)
-            .Build();
-
-        await buildCommand.RunAsync(ctx, ct);
+            .Build()
+            .RunAsync(ctx, ct);
 
         if (string.IsNullOrEmpty(config.CopyTo))
             return;
