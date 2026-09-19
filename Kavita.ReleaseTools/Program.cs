@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading;
 using Kavita.ReleaseTools;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Commands;
+using Kavita.ReleaseTools.Commands.ExternalCommands;
 using Kavita.ReleaseTools.Models;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.VersionBump;
+using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -27,6 +30,7 @@ services.AddLogging(builder =>
     builder.AddSerilog(Log.Logger);
 
 });
+services.AddSingleton<IProcessRunner, ProcessRunner>();
 services.AddScoped<IStage, VersionBumpStage>();
 services.AddScoped<IStage, GenerateOpenApiStage>();
 services.AddScoped<IStage, FlushGitChangesStage>();
@@ -57,11 +61,19 @@ if (issues.Count > 0)
     return 1;
 }
 
+var repository = new Repository("./");
+var gitContext = new GitContext
+{
+    Repository = repository,
+    GitAuthorName = "github-actions[bot]",
+    GitAuthorEmail = "github-actions[bot]@users.noreply.github.com"
+};
+
 using var executionContext = new ExecutionContext
 {
     FileSystem = fs,
     Configuration = configuration,
-    Git = null!
+    Git = gitContext
 };
 
 foreach (var stage in stages)

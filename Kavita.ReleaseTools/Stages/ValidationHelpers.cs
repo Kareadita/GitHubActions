@@ -5,14 +5,16 @@ namespace Kavita.ReleaseTools.Stages;
 
 public static class ValidationHelpers
 {
-    public static List<ValidationIssue> ValidateCsprojPath(ValidationContext ctx, string stageName, string csprojPath)
+    /// <param name="propertyName">Config key to report, when it isn't <c>csprojPath</c></param>
+    public static List<ValidationIssue> ValidateCsprojPath(ValidationContext ctx, string stageName, string? csprojPath,
+        string propertyName = "csprojPath")
     {
         if (string.IsNullOrWhiteSpace(csprojPath))
         {
             return [new ValidationIssue
                 {
                     StageName = stageName,
-                    Message = $"{nameof(csprojPath)} is not configured",
+                    Message = $"{propertyName} is not configured",
                 }
             ];
         }
@@ -22,7 +24,7 @@ public static class ValidationHelpers
             return [new ValidationIssue
             {
                 StageName = stageName,
-                Message = $"{nameof(csprojPath)} not found: {csprojPath}",
+                Message = $"{propertyName} not found: {csprojPath}",
             }];
         }
 

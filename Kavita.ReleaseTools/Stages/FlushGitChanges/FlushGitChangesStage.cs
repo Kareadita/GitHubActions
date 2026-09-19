@@ -32,7 +32,6 @@ public class FlushGitChangesStage(ILogger<FlushGitChangesStage> logger): Configu
         var pushCommand = new GitPushCommand();
 
         await commitCommand.RunAsync(ctx, ct);
-        throw new NotImplementedException("Push isn't implemented yet");
-        await pushCommand.RunAsync(ctx, ct);
+        //await pushCommand.RunAsync(ctx, ct);
     }
 }

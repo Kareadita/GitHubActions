@@ -41,5 +41,10 @@ where TConfiguration : IStageConfiguration
 
     protected abstract Task ExecuteAsync(ExecutionContext ctx, TConfiguration config, CancellationToken ct);
 
+    protected ValidationIssue Issue(string message) => new()
+    {
+        StageName = Name,
+        Message = message,
+    };
 
 }
