@@ -13,6 +13,7 @@ using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildServer;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
+using Kavita.ReleaseTools.Stages.NotifyDiscord;
 using Kavita.ReleaseTools.Stages.VersionBump;
 using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ services.AddScoped<IStage, GenerateOpenApiStage>();
 services.AddScoped<IStage, FlushGitChangesStage>();
 services.AddScoped<IStage, BuildFrontendStage>();
 services.AddScoped<IStage, BuildServerStage>();
+services.AddScoped<IStage, NotifyDiscordStage>();
 
 var provider = services.BuildServiceProvider();
 
@@ -46,6 +48,8 @@ var stages = provider.GetServices<IStage>().ToList();
 
 var fs = new FileSystem();
 var configuration = ConfigurationReader.Read(fs, args);
+
+ConfigurationReader.Validate(configuration);
 
 var validationContext = new ValidationContext
 {
@@ -66,13 +70,6 @@ if (issues.Count > 0)
     return 1;
 }
 
-var gitHubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
-if (string.IsNullOrEmpty(gitHubToken))
-{
-    FailureReport.Render("Program", new InvalidOperationException("Missing environment variable GITHUB_TOKEN"));
-    return 1;
-}
-
 var repository = new Repository("./");
 var gitContext = new GitContext
 {
@@ -81,7 +78,7 @@ var gitContext = new GitContext
     GitAuthorEmail = "github-actions[bot]@users.noreply.github.com",
     CredentialsHandler = (_, _, _) => new UsernamePasswordCredentials
     {
-        Username = gitHubToken,
+        Username = configuration.GitData.AuthToken,
     }
 };
 

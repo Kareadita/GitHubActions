@@ -9,4 +9,4 @@ DESIGN-CONSIDERATIONS.MD
 *.DotSettings.User
 release.test.yaml
 *.tar.gz
-
+test.sh

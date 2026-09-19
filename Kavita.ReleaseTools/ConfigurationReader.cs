@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO.Abstractions;
+using System.Linq;
 using Kavita.ReleaseTools.Models;
 using YamlDotNet.Serialization;
 
@@ -29,7 +32,32 @@ public static class ConfigurationReader
             .WithCaseInsensitivePropertyMatching()
             .Build();
 
-        return deserializer.Deserialize<ReleaseConfiguration>(yaml);
+        var configuration = deserializer.Deserialize<ReleaseConfiguration>(yaml);
+        EnvironmentConfigurationBinder.Apply(configuration);
+
+        return configuration;
+    }
+
+    public static void Validate(ReleaseConfiguration configuration)
+    {
+        System.ComponentModel.DataAnnotations.ValidationContext ctx = new(configuration);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(configuration, ctx, results, validateAllProperties: true);
+
+        var issues = results.Select(r => new ValidationIssue
+        {
+            StageName = nameof(ConfigurationReader),
+            Message = r.ErrorMessage ?? "Unknown validation error.",
+            ExtraInfo = r.MemberNames.Any()
+                ? string.Join(", ", r.MemberNames)
+                : string.Empty,
+            Solutions = []
+        }).ToList();
+
+        if (issues.Count <= 0) return;
+
+        ValidationReport.Render(issues);
+        Environment.Exit(1);
     }
 
 

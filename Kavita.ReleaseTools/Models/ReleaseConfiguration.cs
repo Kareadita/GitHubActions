@@ -1,13 +1,17 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildServer;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
+using Kavita.ReleaseTools.Stages.NotifyDiscord;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
 namespace Kavita.ReleaseTools.Models;
 
-public class ReleaseConfiguration
+public class ReleaseConfiguration: IValidatableObject
 {
 
     /// <summary>
@@ -19,10 +23,21 @@ public class ReleaseConfiguration
     /// </summary>
     public bool ValidateDisabledStages { get; set; } = true;
 
+    [Required]
+    public required GitData GitData { get; init; } = new();
+
     public VersionBumpConfiguration? VersionBump { get; init; }
     public GenerateOpenApiConfiguration? GenerateOpenApi { get; init; }
     public FlushGitChangesConfiguration? FlushGitChanges { get; init; }
     public BuildFrontendConfiguration? BuildFrontend { get; init; }
     public BuildServerConfiguration? BuildServer { get; init; }
+    public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
 
+    public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
+    {
+        System.ComponentModel.DataAnnotations.ValidationContext ctx = new(GitData);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(GitData, ctx, results, validateAllProperties: true);
+        return results.Select(r => new ValidationResult(r.ErrorMessage, r.MemberNames.Select(m => $"GitData.{m}")));
+    }
 }
