@@ -15,6 +15,7 @@ using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
+using Kavita.ReleaseTools.Stages.ParseReleaseTypes;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
 using Kavita.ReleaseTools.Stages.VersionBump;
 using LibGit2Sharp;
@@ -37,6 +38,7 @@ services.AddLogging(builder =>
 });
 
 services.AddSingleton<IProcessRunner, ProcessRunner>();
+services.AddScoped<IStage, ParseReleaseTypesStage>();
 services.AddScoped<IStage, VersionBumpStage>();
 services.AddScoped<IStage, GenerateOpenApiStage>();
 services.AddScoped<IStage, FlushGitChangesStage>();

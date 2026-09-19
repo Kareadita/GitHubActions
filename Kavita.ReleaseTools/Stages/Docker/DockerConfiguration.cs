@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Kavita.ReleaseTools.Stages.Docker;

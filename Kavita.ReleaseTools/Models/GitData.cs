@@ -16,6 +16,10 @@ public class GitData: IHasEnvironmentValues
     public string Repository { get; init; } = string.Empty;
 
     [Required]
+    [FromEnvironment("GITHUB_HEAD_REF")]
+    public string HeadRef { get; init; } = string.Empty;
+
+    [Required]
     [FromEnvironment("PR_NUMBER")]
     public string PrNumber { get; init; } = string.Empty;
 

@@ -9,6 +9,7 @@ using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
+using Kavita.ReleaseTools.Stages.ParseReleaseTypes;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
@@ -38,6 +39,7 @@ public class ReleaseConfiguration: IValidatableObject
     public PublishToNuGetConfiguration? PublishToNuGet { get; init; }
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
     public DockerConfiguration? Docker { get; init; }
+    public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; }
 
     public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
     {

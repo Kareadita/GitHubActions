@@ -35,6 +35,8 @@ public class DockerStage(ILogger<DockerStage> logger, IProcessRunner runner) : C
 
         var version = ctx.ReleaseVersion?.ToString();
         var tags = config.Tags
+            .Where(kv => ctx.ReleaseTypes.Contains(kv.Key))
+            .SelectMany(kv => kv.Value)
             .Select(t => t.Replace("{Version}", version ?? string.Empty))
             .ToArray();
 

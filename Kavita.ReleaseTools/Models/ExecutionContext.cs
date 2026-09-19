@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
@@ -12,6 +13,8 @@ public class ExecutionContext: IDisposable
     /// The release being created. Set in <see cref="VersionBumpStage"/>
     /// </summary>
     public Version? ReleaseVersion { get; set; }
+
+    public IReadOnlyList<ReleaseType> ReleaseTypes { get; set; } = [];
 
     public required IFileSystem FileSystem { get; init; }
     public required ReleaseConfiguration Configuration { get; init; }
