@@ -11,6 +11,7 @@ using Kavita.ReleaseTools.Models;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildLibrary;
 using Kavita.ReleaseTools.Stages.BuildServer;
+using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
@@ -43,6 +44,7 @@ services.AddScoped<IStage, BuildFrontendStage>();
 services.AddScoped<IStage, BuildServerStage>();
 services.AddScoped<IStage, BuildLibraryStage>();
 services.AddScoped<IStage, PublishToNuGetStage>();
+services.AddScoped<IStage, DockerStage>();
 services.AddScoped<IStage, NotifyDiscordStage>();
 
 var provider = services.BuildServiceProvider();

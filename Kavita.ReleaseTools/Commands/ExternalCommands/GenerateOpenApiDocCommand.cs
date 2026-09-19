@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
+using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Commands.ExternalCommands;
@@ -46,7 +47,7 @@ public class GenerateOpenApiDocCommand(IProcessRunner runner, string swashbuckle
 
     private async Task RunAsync(string workingDirectory, IReadOnlyList<string> arguments, CancellationToken ct)
     {
-        var result = await runner.RunAsync(Dotnet, arguments, workingDirectory, ct);
+        var result = await runner.RunAsync(Dotnet, arguments, workingDirectory, LogLevel.Trace, ct);
         result.ThrowIfFailed();
     }
 }

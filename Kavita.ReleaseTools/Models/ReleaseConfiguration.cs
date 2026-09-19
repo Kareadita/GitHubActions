@@ -5,6 +5,7 @@ using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildLibrary;
 using Kavita.ReleaseTools.Stages.BuildServer;
+using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
@@ -36,6 +37,7 @@ public class ReleaseConfiguration: IValidatableObject
     public BuildLibraryConfiguration? BuildLibrary { get; init; }
     public PublishToNuGetConfiguration? PublishToNuGet { get; init; }
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
+    public DockerConfiguration? Docker { get; init; }
 
     public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
     {

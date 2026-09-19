@@ -1,5 +1,6 @@
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Kavita.ReleaseTools.Tests;
 
@@ -11,7 +12,8 @@ public sealed class FakeProcessRunner(Func<string, IReadOnlyList<string>, Proces
 {
     public List<ProcessInvocation> Invocations { get; } = [];
 
-    public Task<ProcessResult> RunAsync(string executable, IReadOnlyList<string> arguments, string? workingDirectory, CancellationToken ct)
+    public Task<ProcessResult> RunAsync(string executable, IReadOnlyList<string> arguments, string? workingDirectory,
+        LogLevel logLevel, CancellationToken ct)
     {
         Invocations.Add(new ProcessInvocation(executable, arguments.ToArray(), workingDirectory));
 
