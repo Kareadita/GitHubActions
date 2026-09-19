@@ -33,6 +33,9 @@ public class GitCommitCommand: RunnableCommand
         var signature = ctx.Git.Signature();
         ctx.Git.Repository.Commit(_commitMessage, signature, signature, _commitOptions);
 
+        // Staging only happens in memory. Need to write the index or it gets deleted when the application exists
+        ctx.Git.Repository.Index.Write();
+
         return Task.CompletedTask;
     }
 
