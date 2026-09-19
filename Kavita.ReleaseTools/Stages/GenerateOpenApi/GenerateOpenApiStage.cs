@@ -62,8 +62,6 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, GenerateOpenApiConfiguration config, CancellationToken ct)
     {
-        var existingSpec = await ReadSpecAsync(ctx, config.OutputPath, ct);
-
         await new ProcessCommand.Builder(processRunner)
             .WithExecutable(Dotnet)
             .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration)
@@ -77,10 +75,12 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
             config.OutputPath, config.DocumentName);
         await generateCommand.RunAsync(ctx, ct);
 
-        var generatedSpec = await ReadSpecAsync(ctx, config.OutputPath, ct)
-            ?? throw new ExecutionException($"The swagger CLI reported success, but no spec was written to {config.OutputPath}");
+        if (!ctx.FileSystem.File.Exists(config.OutputPath))
+        {
+            throw new ExecutionException($"The swagger CLI reported success, but no spec was written to {config.OutputPath}");
+        }
 
-        if (IsUnchanged(existingSpec, generatedSpec))
+        if (!ctx.Git.HasChanges(config.OutputPath))
         {
             logger.LogInformation("{OutputPath} is unchanged, nothing to commit", config.OutputPath);
             return;
@@ -160,17 +160,6 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
         return assemblies;
     }
 
-    /// <summary>
-    /// Compares two specs ignoring line endings - a checkout with different eol conversion would
-    /// otherwise report a change on every single run
-    /// </summary>
-    private static bool IsUnchanged(string? existing, string generated)
-    {
-        return existing is not null && NormalizeLineEndings(existing) == NormalizeLineEndings(generated);
-    }
-
-    private static string NormalizeLineEndings(string content) => content.Replace("\r\n", "\n");
-
     private static string? ReadAttribute(string element, string attributeName)
     {
         foreach (Match attribute in AttributePattern().Matches(element))
@@ -227,13 +216,6 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
         return FindPackageVersion(content, SwashbucklePackageId)
                ?? throw new ExecutionException(
                    $"No {SwashbucklePackageId} PackageReference with a Version found in {config.SwashbuckleVersionSource}");
-    }
-
-    private static async Task<string?> ReadSpecAsync(ExecutionContext ctx, string outputPath, CancellationToken ct)
-    {
-        return ctx.FileSystem.File.Exists(outputPath)
-            ? await ctx.FileSystem.File.ReadAllTextAsync(outputPath, ct)
-            : null;
     }
 
     [GeneratedRegex(@"<PackageReference\b[^>]*>", RegexOptions.Compiled)]
