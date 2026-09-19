@@ -1,18 +1,29 @@
-
 using System.Collections.Generic;
 using System.Linq;
-using Spectre.Console;
 using Kavita.ReleaseTools.Models;
+using Spectre.Console;
 
-namespace Kavita.ReleaseTools;
+namespace Kavita.ReleaseTools.Rendering;
 
+/// <summary>
+/// Reports everything the configuration and the stages found wrong, in one report
+/// </summary>
 public static class ValidationReport
 {
     public static void Render(IReadOnlyList<ValidationIssue> issues)
     {
-        AnsiConsole.Write(new Rule("[red]Validation failed[/]").LeftJustified());
+        ReportPanel.WriteHeading("Validation failed");
+        AnsiConsole.Write(BuildSummary(issues));
         AnsiConsole.WriteLine();
 
+        foreach (var issue in issues.Where(HasDetail))
+        {
+            RenderDetail(issue);
+        }
+    }
+
+    private static Table BuildSummary(IReadOnlyList<ValidationIssue> issues)
+    {
         var table = new Table()
             .Border(TableBorder.Rounded)
             .AddColumn("Stage")
@@ -29,24 +40,14 @@ public static class ValidationReport
                     : $"[green]{issue.Solutions.Count}[/]"));
         }
 
-        AnsiConsole.Write(table);
-        AnsiConsole.WriteLine();
-
-        foreach (var issue in issues.Where(i =>
-                     !string.IsNullOrWhiteSpace(i.ExtraInfo) || i.Solutions.Count > 0))
-        {
-            RenderDetail(issue);
-        }
+        return table;
     }
 
     private static void RenderDetail(ValidationIssue issue)
     {
-        var grid = new Grid()
-            .AddColumn(new GridColumn().NoWrap().PadRight(2))
-            .AddColumn();
-
-        grid.AddRow("[grey]Stage[/]",   $"[yellow]{Markup.Escape(issue.StageName)}[/]");
-        grid.AddRow("[grey]Message[/]", $"[red]{Markup.Escape(issue.Message)}[/]");
+        var grid = ReportPanel.DetailGrid()
+            .AddRow("[grey]Stage[/]",   $"[yellow]{Markup.Escape(issue.StageName)}[/]")
+            .AddRow("[grey]Message[/]", $"[red]{Markup.Escape(issue.Message)}[/]");
 
         if (!string.IsNullOrWhiteSpace(issue.ExtraInfo))
         {
@@ -56,16 +57,17 @@ public static class ValidationReport
         if (issue.Solutions.Count > 0)
         {
             var bullets = string.Join("\n",
-                issue.Solutions.Select(s => $"  [green]•[/] {Markup.Escape(s)}"));
+                issue.Solutions.Select(solution => $"  [green]•[/] {Markup.Escape(solution)}"));
             grid.AddRow("[grey]Solutions[/]", bullets);
         }
 
-        AnsiConsole.Write(new Panel(grid)
-            .Header($"[red]{Markup.Escape(issue.StageName)}[/]")
-            .Border(BoxBorder.Rounded)
-            .BorderColor(Color.Red)
-            .Padding(1, 0, 1, 0));
-
+        AnsiConsole.Write(ReportPanel.Wrap(issue.StageName, grid));
         AnsiConsole.WriteLine();
     }
+
+    /// <summary>
+    /// Only the issues carrying more than the summary table shows get a panel of their own
+    /// </summary>
+    private static bool HasDetail(ValidationIssue issue) =>
+        !string.IsNullOrWhiteSpace(issue.ExtraInfo) || issue.Solutions.Count > 0;
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Kavita.ReleaseTools;
+namespace Kavita.ReleaseTools.Configuration;
 
 /// <summary>
 /// Loads the property from an environment variable. When the variable holds a non-empty value it
@@ -15,5 +15,3 @@ public sealed class FromEnvironmentAttribute(string variableName) : Attribute
     /// </summary>
     public string VariableName { get; } = variableName;
 }
-
-public interface IHasEnvironmentValues;

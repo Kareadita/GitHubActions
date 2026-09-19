@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.PublishToNuGet;

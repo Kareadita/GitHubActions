@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Api;

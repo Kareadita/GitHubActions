@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Kavita.ReleaseTools.Configuration;
 
 namespace Kavita.ReleaseTools.Models;
 
