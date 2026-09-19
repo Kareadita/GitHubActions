@@ -38,24 +38,8 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
         [
             .. ValidationHelpers.ValidateCsprojPath(ctx, Name, config.CsprojPath),
             .. ValidationHelpers.ValidateCsprojPath(ctx, Name, config.SwashbuckleVersionSource, "swashbuckleVersionSource"),
+            .. ValidateSwashbuckleVersion(ctx, config)
         ];
-
-        if (string.IsNullOrWhiteSpace(config.OutputPath))
-        {
-            issues.Add(Issue("outputPath is not configured"));
-        }
-
-        if (string.IsNullOrWhiteSpace(config.DocumentName))
-        {
-            issues.Add(Issue("documentName is not configured"));
-        }
-
-        if (string.IsNullOrWhiteSpace(config.Configuration))
-        {
-            issues.Add(Issue("configuration is not configured"));
-        }
-
-        issues.AddRange(ValidateSwashbuckleVersion(ctx, config));
 
         return issues;
     }

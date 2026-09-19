@@ -23,7 +23,15 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
     protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, BuildServerConfiguration config)
     {
-        return [];
+        List<ValidationIssue> issues = [];
+
+        if (!ctx.FileSystem.File.Exists(config.SlnPath))
+            issues.Add(Issue($"SlnPath does not found on disk ({config.SlnPath})"));
+
+        if (!ctx.FileSystem.File.Exists(config.CsprojPath))
+            issues.Add(Issue($"CsprojPath does not found on disk ({config.CsprojPath})"));
+
+        return issues;
     }
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, BuildServerConfiguration config, CancellationToken ct)

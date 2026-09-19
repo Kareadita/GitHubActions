@@ -9,16 +9,6 @@ public static class ValidationHelpers
     public static List<ValidationIssue> ValidateCsprojPath(ValidationContext ctx, string stageName, string? csprojPath,
         string propertyName = "csprojPath")
     {
-        if (string.IsNullOrWhiteSpace(csprojPath))
-        {
-            return [new ValidationIssue
-                {
-                    StageName = stageName,
-                    Message = $"{propertyName} is not configured",
-                }
-            ];
-        }
-
         if (!ctx.FileSystem.File.Exists(csprojPath))
         {
             return [new ValidationIssue

@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
 using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
+using ValidationContext = Kavita.ReleaseTools.Models.ValidationContext;
+using ValidationContext2 = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace Kavita.ReleaseTools.Stages;
 
@@ -20,7 +24,24 @@ where TConfiguration : IStageConfiguration
 
         if (configuration.Disabled && !ctx.Configuration.ValidateDisabledStages) return [];
 
-        return Validate(ctx, configuration);
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext2(configuration);
+        Validator.TryValidateObject(configuration, context, results, true);
+
+        var issues = new List<ValidationIssue>();
+
+        issues.AddRange(results.Select(r => new ValidationIssue
+        {
+            StageName = Name,
+            Message = r.ErrorMessage ?? "Unknown validation error.",
+            ExtraInfo = r.MemberNames.Any()
+                ? string.Join(", ", r.MemberNames)
+                : string.Empty,
+            Solutions = []
+        }));
+
+
+        return [.. issues, .. Validate(ctx, configuration)];
     }
 
     public async Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)

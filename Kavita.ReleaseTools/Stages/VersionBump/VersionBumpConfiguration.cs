@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
 
 namespace Kavita.ReleaseTools.Stages.VersionBump;
@@ -18,7 +19,9 @@ public class VersionBumpConfiguration: IStageConfiguration
     /// <summary>
     /// Which part of the version should be bumped
     /// </summary>
-    public required VersionComponent ComponentToBump { get; init; }
+    [EnumDataType(typeof(VersionComponent))]
+    [Required(ErrorMessage = "ComponentToBump is required")]
+    public required VersionComponent ComponentToBump { get; init; }  = (VersionComponent)(-1);
 
     /// <summary>
     /// Should parts of the version smaller than <see cref="ComponentToBump"/> be reinit to 0
@@ -28,6 +31,7 @@ public class VersionBumpConfiguration: IStageConfiguration
     /// <summary>
     /// Path the to .csproj file that contains the version to bump
     /// </summary>
+    [Required(ErrorMessage = "CsprojPath is required")]
     public required string CsprojPath { get; init; }
 
     /// <summary>

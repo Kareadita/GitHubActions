@@ -22,16 +22,8 @@ public class BuildFrontendStage(ILogger<BuildFrontendStage> logger, IProcessRunn
     {
         List<ValidationIssue> issues = [];
 
-        if (string.IsNullOrEmpty(config.Path))
-            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.Path)}] must be specified"));
-        else if (!ctx.FileSystem.Directory.Exists(config.Path))
+        if (!string.IsNullOrEmpty(config.Path) && !ctx.FileSystem.Directory.Exists(config.Path))
             issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.Path)}] The path «{config.Path}» cannot be found"));
-
-        if (string.IsNullOrEmpty(config.BuildScript))
-            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.BuildScript)}] must be specified"));
-
-        if (string.IsNullOrEmpty(config.OutputPath))
-            issues.Add(Issue($"[{nameof(BuildFrontendConfiguration.OutputPath)}] must be specified"));
 
         return issues;
     }
