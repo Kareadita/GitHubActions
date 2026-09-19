@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kavita.ReleaseTools", "Kavita.ReleaseTools\Kavita.ReleaseTools.csproj", "{ECB80020-2B52-4394-9922-F82CE171F753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kavita.ReleaseTools.Tests", "Kavita.ReleaseTools.Tests\Kavita.ReleaseTools.Tests.csproj", "{C57A2BE9-416B-4F8B-840D-19C7F8E944C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECB80020-2B52-4394-9922-F82CE171F753}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB80020-2B52-4394-9922-F82CE171F753}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB80020-2B52-4394-9922-F82CE171F753}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB80020-2B52-4394-9922-F82CE171F753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C57A2BE9-416B-4F8B-840D-19C7F8E944C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C57A2BE9-416B-4F8B-840D-19C7F8E944C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C57A2BE9-416B-4F8B-840D-19C7F8E944C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C57A2BE9-416B-4F8B-840D-19C7F8E944C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
