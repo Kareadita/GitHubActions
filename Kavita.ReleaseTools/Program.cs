@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -78,7 +79,15 @@ using var executionContext = new ExecutionContext
 
 foreach (var stage in stages)
 {
-    await stage.ExecuteAsync(executionContext, CancellationToken.None);
+    try
+    {
+        await stage.ExecuteAsync(executionContext, CancellationToken.None);
+    }
+    catch (Exception exception)
+    {
+        FailureReport.Render(stage.Name, exception);
+        return 1;
+    }
 }
 
 return 0;
