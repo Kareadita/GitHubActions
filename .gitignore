@@ -7,3 +7,6 @@ riderModule.iml
 ARCHITECTURE.MD
 DESIGN-CONSIDERATIONS.MD
 *.DotSettings.User
+release.test.yaml
+*.tar.gz
+

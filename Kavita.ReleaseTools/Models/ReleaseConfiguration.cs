@@ -1,5 +1,6 @@
 using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
+using Kavita.ReleaseTools.Stages.BuildServer;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.VersionBump;
@@ -22,5 +23,6 @@ public class ReleaseConfiguration
     public GenerateOpenApiConfiguration? GenerateOpenApi { get; init; }
     public FlushGitChangesConfiguration? FlushGitChanges { get; init; }
     public BuildFrontendConfiguration? BuildFrontend { get; init; }
+    public BuildServerConfiguration? BuildServer { get; init; }
 
 }

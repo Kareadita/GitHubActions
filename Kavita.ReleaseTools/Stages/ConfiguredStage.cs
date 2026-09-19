@@ -26,9 +26,15 @@ where TConfiguration : IStageConfiguration
     public async Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
         var configuration = GetConfiguration(ctx.Configuration);
-        if (configuration is null || configuration.Disabled)
+        if (configuration is null)
         {
-            logger.LogDebug("Skipping stage as no configuration was found, or the stage has been disabled");
+            logger.LogTrace("Skipping stage as no configuration was found,");
+            return;
+        }
+
+        if (configuration.Disabled)
+        {
+            logger.LogDebug("Skipping disabled stage");
             return;
         }
 
