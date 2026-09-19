@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
+using Serilog;
 using Models_ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Commands;
@@ -11,7 +12,8 @@ namespace Kavita.ReleaseTools.Commands;
 /// <remarks>Execution is skipped during a dry-run</remarks>
 public abstract class MutatingCommand(bool testable): ICommand
 {
-    public abstract string Name { get; }
+    protected abstract string Name { get; }
+    protected abstract ILogger Logger { get; }
 
     public Task RunAsync(Models_ExecutionContext ctx, CancellationToken ct)
     {
@@ -19,7 +21,7 @@ public abstract class MutatingCommand(bool testable): ICommand
 
         if (ctx.Configuration.DryRun)
         {
-            // TODO: Print dry run info nicely
+            Logger.Information("[DRY RUN] Skipping execution of {Name}...", Name);
             return Task.CompletedTask;
         }
 

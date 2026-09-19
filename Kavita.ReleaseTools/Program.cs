@@ -29,8 +29,8 @@ services.AddLogging(builder =>
 {
     builder.ClearProviders();
     builder.AddSerilog(Log.Logger);
-
 });
+
 services.AddSingleton<IProcessRunner, ProcessRunner>();
 services.AddScoped<IStage, VersionBumpStage>();
 services.AddScoped<IStage, GenerateOpenApiStage>();
@@ -62,12 +62,23 @@ if (issues.Count > 0)
     return 1;
 }
 
+var gitHubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+if (string.IsNullOrEmpty(gitHubToken))
+{
+    FailureReport.Render("Program", new InvalidOperationException("Missing environment variable GITHUB_TOKEN"));
+    return 1;
+}
+
 var repository = new Repository("./");
 var gitContext = new GitContext
 {
     Repository = repository,
     GitAuthorName = "github-actions[bot]",
-    GitAuthorEmail = "github-actions[bot]@users.noreply.github.com"
+    GitAuthorEmail = "github-actions[bot]@users.noreply.github.com",
+    CredentialsHandler = (_, _, _) => new UsernamePasswordCredentials
+    {
+        Username = gitHubToken,
+    }
 };
 
 using var executionContext = new ExecutionContext

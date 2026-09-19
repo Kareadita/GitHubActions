@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
 
 namespace Kavita.ReleaseTools.Models;
 
@@ -12,17 +13,14 @@ public class GitContext: IDisposable
     public required string GitAuthorName { get; init; }
     public required string GitAuthorEmail { get; init; }
 
+    public required CredentialsHandler CredentialsHandler { get; init; }
+
     public Signature Signature(DateTime? date = null) => new(GitAuthorName, GitAuthorEmail, date ?? DateTime.Now);
 
     /// <summary>
     /// Whether git considers <paramref name="path"/> to differ from what is committed - an untracked
     /// file counts as a change, a deleted one too
     /// </summary>
-    /// <remarks>
-    /// Asks the status rather than comparing bytes, so the answer accounts for the eol and filter
-    /// rules git applies when staging. Comparing the file's contents directly would report a change
-    /// that git then refuses to commit
-    /// </remarks>
     public bool HasChanges(string path)
     {
         var status = Repository.RetrieveStatus(new StatusOptions
