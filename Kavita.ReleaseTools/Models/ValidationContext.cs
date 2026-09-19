@@ -5,7 +5,7 @@ namespace Kavita.ReleaseTools.Models;
 public class ValidationContext
 {
 
-    public IFileSystem FileSystem { get; }
+    public required IFileSystem FileSystem { get; init; }
 
-    public ReleaseConfiguration Configuration { get; set; }
+    public required ReleaseConfiguration Configuration { get; init; }
 }

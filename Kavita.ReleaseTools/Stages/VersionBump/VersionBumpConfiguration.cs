@@ -8,7 +8,7 @@ namespace Kavita.ReleaseTools.Stages.VersionBump;
 public class VersionBumpConfiguration: IStageConfiguration
 {
     /// <inheritdoc/>
-    public required bool Disable { get; init; }
+    public required bool Disabled { get; init; }
 
     /// <summary>
     /// Should this stage create a seperate commit

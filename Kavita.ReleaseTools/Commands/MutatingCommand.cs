@@ -17,7 +17,7 @@ public abstract class MutatingCommand(bool testable): ICommand
     {
         if (ctx.IsTest && !testable) return Task.CompletedTask;
 
-        if (ctx.DryRun)
+        if (ctx.Configuration.DryRun)
         {
             // TODO: Print dry run info nicely
             return Task.CompletedTask;

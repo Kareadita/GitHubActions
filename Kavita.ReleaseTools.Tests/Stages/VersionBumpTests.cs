@@ -31,7 +31,7 @@ public class VersionBumpTests
         {
             VersionBump = new VersionBumpConfiguration
             {
-                Disable = false,
+                Disabled = false,
                 ComponentToBump = component,
                 ResetSmallerComponents = reset,
                 CsprojPath = CsprojPath,
@@ -95,7 +95,7 @@ public class VersionBumpTests
         {
             VersionBump = new VersionBumpConfiguration
             {
-                Disable = false,
+                Disabled = false,
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
                 CsprojPath = CsprojPath,
@@ -125,7 +125,7 @@ public class VersionBumpTests
         {
             VersionBump = new VersionBumpConfiguration
             {
-                Disable = false,
+                Disabled = false,
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
                 CsprojPath = CsprojPath,
@@ -171,7 +171,7 @@ public class VersionBumpTests
     {
         var actual = VersionBumpStage.BumpVersion(new VersionBumpConfiguration
         {
-            Disable = false,
+            Disabled = false,
             ComponentToBump = component,
             ResetSmallerComponents = resetSmallerComponents,
             CsprojPath = string.Empty

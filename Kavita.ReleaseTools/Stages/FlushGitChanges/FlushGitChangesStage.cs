@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +12,14 @@ public class FlushGitChangesStage: ConfiguredStage<FlushGitChangesConfiguration>
 {
     public override string Name => nameof(FlushGitChangesStage);
 
-    public override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx)
+    protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, FlushGitChangesConfiguration config)
     {
         return [];
     }
 
-    protected override FlushGitChangesConfiguration? GetConfiguration(ExecutionContext ctx)
+    protected override FlushGitChangesConfiguration? GetConfiguration(ReleaseConfiguration configuration)
     {
-        return ctx.Configuration.FlushGitChanges;
+        return configuration.FlushGitChanges;
     }
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, FlushGitChangesConfiguration config, CancellationToken ct)
@@ -30,6 +31,7 @@ public class FlushGitChangesStage: ConfiguredStage<FlushGitChangesConfiguration>
         var pushCommand = new GitPushCommand();
 
         await commitCommand.RunAsync(ctx, ct);
+        throw new NotImplementedException("Push isn't implemented yet");
         await pushCommand.RunAsync(ctx, ct);
     }
 }

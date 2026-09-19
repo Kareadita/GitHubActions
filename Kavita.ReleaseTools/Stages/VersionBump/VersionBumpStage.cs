@@ -17,36 +17,14 @@ public partial class VersionBumpStage : ConfiguredStage<VersionBumpConfiguration
 
     public override string Name => nameof(VersionBumpStage);
 
-    public override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx)
+    protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, VersionBumpConfiguration config)
     {
-        var configuration = ctx.Configuration.VersionBump;
-        if (configuration is null || configuration.Disable) return [];
-
-        if (string.IsNullOrWhiteSpace(configuration.CsprojPath))
-        {
-            return [new ValidationIssue
-                {
-                    StageName = Name,
-                    Message = $"{nameof(VersionBumpConfiguration.CsprojPath)} is not configured",
-                }
-            ];
-        }
-
-        if (!ctx.FileSystem.File.Exists(configuration.CsprojPath))
-        {
-            return [new ValidationIssue
-            {
-                StageName = Name,
-                Message = $"{nameof(VersionBumpConfiguration.CsprojPath)} not found: {configuration.CsprojPath}",
-            }];
-        }
-
-        return [];
+        return ValidationHelpers.ValidateCsprojPath(ctx, Name, config.CsprojPath);
     }
 
-    protected override VersionBumpConfiguration? GetConfiguration(ExecutionContext ctx)
+    protected override VersionBumpConfiguration? GetConfiguration(ReleaseConfiguration configuration)
     {
-        return ctx.Configuration.VersionBump;
+        return configuration.VersionBump;
     }
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, VersionBumpConfiguration config, CancellationToken ct)

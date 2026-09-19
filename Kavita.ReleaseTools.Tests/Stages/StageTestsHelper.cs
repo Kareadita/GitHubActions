@@ -12,7 +12,6 @@ public static class StageTestsHelper
     {
         return new ExecutionContext
         {
-            DryRun = false,
             IsTest = true,
             FileSystem = fileSystem ?? new MockFileSystem(),
             Configuration = releaseConfiguration,
