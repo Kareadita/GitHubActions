@@ -1,6 +1,8 @@
 using System.IO.Abstractions.TestingHelpers;
 using Kavita.ReleaseTools.Models;
 using Kavita.ReleaseTools.Stages.VersionBump;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Tests.Stages;
@@ -38,7 +40,7 @@ public class VersionBumpTests
             }
         }, fs);
 
-        return (new VersionBumpStage(), ctx, fs);
+        return (new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()), ctx, fs);
     }
 
     public static TheoryData<string, VersionComponent, bool, string> CsprojBumpTestData => new()
@@ -102,7 +104,7 @@ public class VersionBumpTests
             }
         }, fs);
 
-        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage().ExecuteAsync(ctx, CancellationToken.None));
+        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));
     }
 
     [Fact]
@@ -132,7 +134,7 @@ public class VersionBumpTests
             }
         }, fs);
 
-        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage().ExecuteAsync(ctx, CancellationToken.None));
+        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));
     }
 
     #region VersionBump (raw)

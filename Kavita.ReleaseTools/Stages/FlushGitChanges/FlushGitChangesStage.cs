@@ -4,11 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Commands.Git;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Stages.FlushGitChanges;
 
-public class FlushGitChangesStage: ConfiguredStage<FlushGitChangesConfiguration>
+public class FlushGitChangesStage(ILogger<FlushGitChangesStage> logger): ConfiguredStage<FlushGitChangesConfiguration>(logger)
 {
     public override string Name => nameof(FlushGitChangesStage);
 

@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using Kavita.ReleaseTools.Commands.Git;
 using Kavita.ReleaseTools.Models;
 using LibGit2Sharp;
+using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 using Version = System.Version;
 
 namespace Kavita.ReleaseTools.Stages.VersionBump;
 
-public partial class VersionBumpStage : ConfiguredStage<VersionBumpConfiguration>
+public partial class VersionBumpStage(ILogger<VersionBumpStage> logger) : ConfiguredStage<VersionBumpConfiguration>(logger)
 {
     private static readonly Regex AssemblyVersionPattern = AssemblyVersionRegex();
 
@@ -39,7 +40,7 @@ public partial class VersionBumpStage : ConfiguredStage<VersionBumpConfiguration
 
         var newVersion = BumpVersion(config, currentVersion);
 
-        // TODO: Log version bump
+        logger.LogInformation("Updating AssemblyVersion from {OldVersion} to {newVersion}", currentVersion, newVersion);
 
         var updated = SetAssemblyVersion(content, newVersion);
         await ctx.FileSystem.File.WriteAllTextAsync(config.CsprojPath, updated, ct);

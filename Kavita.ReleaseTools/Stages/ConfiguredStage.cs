@@ -3,11 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Stages;
 
-public abstract class ConfiguredStage<TConfiguration>: IStage
+public abstract class ConfiguredStage<TConfiguration>(ILogger logger): IStage
 where TConfiguration : IStageConfiguration
 {
     public abstract string Name { get; }
@@ -27,7 +28,7 @@ where TConfiguration : IStageConfiguration
         var configuration = GetConfiguration(ctx.Configuration);
         if (configuration is null || configuration.Disabled)
         {
-            // TODO: Log for verbose mode that a stage was skipped
+            logger.LogDebug("Skipping stage as no configuration was found, or the stage has been disabled");
             return;
         }
 

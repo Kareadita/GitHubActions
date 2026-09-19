@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Stages.GenerateOpenApi;
 
-public class GenerateOpenApiStage: ConfiguredStage<GenerateOpenApiConfiguration>
+public class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger): ConfiguredStage<GenerateOpenApiConfiguration>(logger)
 {
     public override string Name => nameof(GenerateOpenApiStage);
 

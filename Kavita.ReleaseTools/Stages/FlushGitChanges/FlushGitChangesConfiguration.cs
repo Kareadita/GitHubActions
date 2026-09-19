@@ -25,5 +25,5 @@ public class FlushGitChangesConfiguration: IStageConfiguration
     /// <summary>
     /// Which files should be tracked
     /// </summary>
-    public List<string> Files { get; init; }
+    public required List<string> Files { get; init; }
 }
