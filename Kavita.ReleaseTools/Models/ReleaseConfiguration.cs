@@ -3,10 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
+using Kavita.ReleaseTools.Stages.BuildLibrary;
 using Kavita.ReleaseTools.Stages.BuildServer;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
+using Kavita.ReleaseTools.Stages.PublishToNuGet;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
 namespace Kavita.ReleaseTools.Models;
@@ -31,6 +33,8 @@ public class ReleaseConfiguration: IValidatableObject
     public FlushGitChangesConfiguration? FlushGitChanges { get; init; }
     public BuildFrontendConfiguration? BuildFrontend { get; init; }
     public BuildServerConfiguration? BuildServer { get; init; }
+    public BuildLibraryConfiguration? BuildLibrary { get; init; }
+    public PublishToNuGetConfiguration? PublishToNuGet { get; init; }
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
 
     public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
