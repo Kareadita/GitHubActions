@@ -12,6 +12,14 @@ public class GitData: IHasEnvironmentValues
     public string AuthToken { get; init; } = string.Empty;
 
     [Required]
+    [FromEnvironment("GITHUB_REPOSITORY")]
+    public string Repository { get; init; } = string.Empty;
+
+    [Required]
+    [FromEnvironment("PR_NUMBER")]
+    public string PrNumber { get; init; } = string.Empty;
+
+    [Required]
     [FromEnvironment("PR_TITLE")]
     public string PrTitle { get; init; } = string.Empty;
 
