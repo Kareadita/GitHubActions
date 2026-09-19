@@ -31,6 +31,9 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         if (!ctx.FileSystem.File.Exists(config.CsprojPath))
             issues.Add(Issue($"CsprojPath does not found on disk ({config.CsprojPath})"));
 
+        if (!config.OutputPath.EndsWith('/'))
+            issues.Add(Issue($"OutputPath does not end with /"));
+
         return issues;
     }
 
@@ -68,7 +71,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         {
             var completePath = ctx.FileSystem.Path.Combine(outputPath, path);
 
-            logger.LogDebug("Deleting {Path}", completePath);
+            logger.LogTrace("Deleting {Path}", completePath);
             if (ctx.FileSystem.Directory.Exists(completePath))
             {
                 ctx.FileSystem.Directory.Delete(completePath, true);
@@ -88,7 +91,10 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
                 if (!string.IsNullOrEmpty(directory) && !ctx.FileSystem.Directory.Exists(directory))
                     ctx.FileSystem.Directory.CreateDirectory(directory);
 
-                logger.LogDebug("Copying {From} to {To}", fromTo.To, destPath);
+                logger.LogTrace("Copying {From} to {To}", fromTo.To, destPath);
+                if (ctx.FileSystem.File.Exists(destPath))
+                    ctx.FileSystem.File.Delete(destPath);
+
                 ctx.FileSystem.File.Copy(fromTo.From, destPath);
             }
             else
@@ -101,10 +107,10 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         {
             var srcPath = ctx.FileSystem.Path.Combine(outputPath, fromTo.From);
             var destPath = ctx.FileSystem.Path.Combine(outputPath, fromTo.To);
-            if (ctx.FileSystem.Directory.Exists(srcPath))
+            if (ctx.FileSystem.File.Exists(srcPath))
             {
-                logger.LogDebug("Renaming {From} to {To}", srcPath, destPath);
-                ctx.FileSystem.Directory.Move(srcPath, destPath);
+                logger.LogTrace("Renaming {From} to {To}", srcPath, destPath);
+                ctx.FileSystem.File.Move(srcPath, destPath);
             }
             else
             {
@@ -112,12 +118,15 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             }
         }
 
-        logger.LogDebug("Compressing {Path}", outputPath);
+        logger.LogTrace("Compressing {Path}", outputPath);
+
+        if (!ctx.FileSystem.Directory.Exists(config.OutputPath))
+            ctx.FileSystem.Directory.CreateDirectory(config.OutputPath);
 
         var parent = ctx.FileSystem.Path.GetDirectoryName(outputPath)!;
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Tar)
-            .WithArguments("-czvf", $"kavita-{rid}.tar.gz", "-C", parent, "Kavita")
+            .WithArguments("-czvf", $"{config.OutputPath}kavita-{rid}.tar.gz", "-C", parent, "Kavita")
             .Build()
             .RunAsync(ctx, ct);
 

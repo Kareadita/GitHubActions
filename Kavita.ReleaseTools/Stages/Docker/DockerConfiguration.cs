@@ -22,16 +22,16 @@ public class DockerConfiguration: IStageConfiguration
     public string File { get; init; } = string.Empty;
 
     [Required]
-    public List<string> Platforms { get; init; }
+    public List<string> Platforms { get; init; } = [];
 
     /// <summary>
     /// You may use the placeholder {Version} to insert the current version
     /// </summary>
     [Required]
-    public List<string> Tags { get; init; }
+    public Dictionary<ReleaseType, List<string>> Tags { get; init; } = [];
 
     [Required]
-    public List<string> Images { get; init; }
+    public List<string> Images { get; init; } = [];
 
     [Required]
     [EnumDataType(typeof(LogLevel))]

@@ -23,6 +23,8 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
 
     public bool SelfContained { get; init; } = true;
 
+    public string OutputPath { get; init; } = "./";
+
     /// <summary>
     /// Rename files inside the output path
     /// </summary>
