@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
 
@@ -25,12 +26,11 @@ public class BranchRequirement
     /// <summary>
     /// The branch has to start with
     /// </summary>
-
     public required string StartWiths { get; init; } = string.Empty;
     /// <summary>
     /// The branch cannot contain
     /// </summary>
-    public required string DoesNotContain { get; init; } = string.Empty;
+    public required List<string> DoesNotContain { get; init; } = [];
 
-    public bool IsMatch(string branch) => branch.StartsWith(StartWiths) && !branch.Contains(DoesNotContain);
+    public bool IsMatch(string branch) => branch.StartsWith(StartWiths) && !DoesNotContain.Any(branch.Contains);
 }

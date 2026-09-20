@@ -42,13 +42,16 @@ public class ReleaseConfiguration: IValidatableObject
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
     public DockerConfiguration? Docker { get; init; }
 
-    public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; } = new ParseReleaseTypesConfiguration
+    public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; } = new()
     {
-        BranchRequirements = new Dictionary<ReleaseType, BranchRequirement>()
+        BranchRequirements = new Dictionary<ReleaseType, BranchRequirement>
         {
-            [ReleaseType.Stable] = new() {DoesNotContain = string.Empty, StartWiths = "release/"},
-            [ReleaseType.Nightly] = new() {DoesNotContain = "canary/", StartWiths = ""},
-            [ReleaseType.Canary] = new() {DoesNotContain = string.Empty, StartWiths = "canary/"},
+            // Stable releases come from release/
+            [ReleaseType.Stable] = new() {DoesNotContain = [], StartWiths = "release/"},
+            // Nightly is not stable or Canary
+            [ReleaseType.Nightly] = new() {DoesNotContain = ["canary/", "release/"], StartWiths = ""},
+            // Canary releases come from canary/
+            [ReleaseType.Canary] = new() {DoesNotContain = [], StartWiths = "canary/"},
         }
     };
 
