@@ -38,6 +38,7 @@ public partial class FlushGitChangesStage(ILogger<FlushGitChangesStage> logger):
 
         var pushCommand = new GitPushCommand.Builder()
             .WithBranchName(config.Branch)
+            .WithAuthToken(config.AuthToken)
             .Build();
 
         await pushCommand.RunAsync(ctx, ct);

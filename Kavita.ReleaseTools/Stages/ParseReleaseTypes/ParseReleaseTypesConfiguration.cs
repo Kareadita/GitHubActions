@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.ParseReleaseTypes;
@@ -15,10 +16,14 @@ public class ParseReleaseTypesConfiguration: IStageConfiguration
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     /// <summary>
-    /// Requierments per relase
+    /// Requirements per release
     /// </summary>
     [Required]
     public required Dictionary<ReleaseType, BranchRequirement> BranchRequirements { get; init; }
+
+    [Required]
+    [FromEnvironment("GITHUB_HEAD_REF")]
+    public string HeadRef { get; init; } = string.Empty;
 }
 
 public class BranchRequirement

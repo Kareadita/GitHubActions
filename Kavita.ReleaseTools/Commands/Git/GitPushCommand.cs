@@ -14,16 +14,20 @@ public class GitPushCommand : MutatingCommand
 
     private readonly string _remote;
     private readonly string _branchName;
+    private readonly string _authToken;
 
-    private GitPushCommand(string remote, string branchName) : base(false)
+    private GitPushCommand(string remote, string branchName, string authToken) : base(false)
     {
         _remote = remote;
         _branchName = branchName;
+        _authToken = authToken;
     }
 
     protected override Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
-        var pushOptions = new PushOptions { CredentialsProvider = ctx.Git.CredentialsHandler };
+        var pushOptions = new PushOptions { CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
+            { Username = _authToken}
+        };
 
         var remote = ctx.Git.Repository.Network.Remotes[_remote];
 
@@ -36,6 +40,7 @@ public class GitPushCommand : MutatingCommand
     {
         private string _remote = "origin";
         private string _branchName = "main";
+        private string _authToken = string.Empty;
 
         public Builder WithRemote(string remote)
         {
@@ -49,9 +54,15 @@ public class GitPushCommand : MutatingCommand
             return this;
         }
 
+        public Builder WithAuthToken(string authToken)
+        {
+            _authToken = authToken;
+            return this;
+        }
+
         public ICommand Build()
         {
-            return new GitPushCommand(_remote, _branchName);
+            return new GitPushCommand(_remote, _branchName, _authToken);
         }
     }
 

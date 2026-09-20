@@ -41,4 +41,20 @@ public class NotifyDiscordConfiguration: IStageConfiguration
     public required string Icon { get; init; } =
         "https://cdn.discordapp.com/avatars/851865280727613501/ac0f4d9a4b52148789a963ccd08d5219.webp?size=80"; // GitHub icon
 
+    [Required]
+    [FromEnvironment("GITHUB_REPOSITORY")]
+    public string Repository { get; init; } = string.Empty;
+
+    [Required]
+    [FromEnvironment("PR_NUMBER")]
+    public string PrNumber { get; init; } = string.Empty;
+
+    [Required]
+    [FromEnvironment("PR_TITLE")]
+    public string PrTitle { get; init; } = string.Empty;
+
+    [Required]
+    [FromEnvironment("PR_DESCRIPTION")]
+    public string PrDescription { get; init; } = string.Empty;
+
 }

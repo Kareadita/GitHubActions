@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
+using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
 
 namespace Kavita.ReleaseTools.Stages.FlushGitChanges;
@@ -30,4 +32,8 @@ public class FlushGitChangesConfiguration: IStageConfiguration
     /// Which files should be tracked
     /// </summary>
     public required List<string> Files { get; init; }
+
+    [Required]
+    [FromEnvironment("GITHUB_TOKEN")]
+    public string AuthToken { get; init; } = string.Empty;
 }

@@ -18,7 +18,7 @@ using Kavita.ReleaseTools.Stages.VersionBump;
 namespace Kavita.ReleaseTools.Models;
 
 [GenerateJsonSchema]
-public class ReleaseConfiguration: IValidatableObject
+public class ReleaseConfiguration
 {
 
     /// <summary>
@@ -29,9 +29,6 @@ public class ReleaseConfiguration: IValidatableObject
     /// Should disable stages be validated
     /// </summary>
     public bool ValidateDisabledStages { get; set; } = true;
-
-    [Required]
-    public required GitData GitData { get; init; } = new();
 
     public VersionBumpConfiguration? VersionBump { get; init; }
     public GenerateOpenApiConfiguration? GenerateOpenApi { get; init; }
@@ -56,12 +53,4 @@ public class ReleaseConfiguration: IValidatableObject
             [ReleaseType.Canary] = new() {DoesNotContain = [], StartWiths = "canary/"},
         }
     };
-
-    public IEnumerable<ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
-    {
-        System.ComponentModel.DataAnnotations.ValidationContext ctx = new(GitData);
-        var results = new List<ValidationResult>();
-        Validator.TryValidateObject(GitData, ctx, results, validateAllProperties: true);
-        return results.Select(r => new ValidationResult(r.ErrorMessage, r.MemberNames.Select(m => $"GitData.{m}")));
-    }
 }

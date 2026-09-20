@@ -24,13 +24,11 @@ public class ParseReleaseTypesStage(ILogger<ParseReleaseTypesStage> logger) : Co
 
     protected override Task ExecuteAsync(ExecutionContext ctx, ParseReleaseTypesConfiguration config, CancellationToken ct)
     {
-        var headRef = ctx.Configuration.GitData.HeadRef;
-
         List<ReleaseType> releaseTypes = [];
 
         foreach (var (releaseType, branchRequirement) in config.BranchRequirements)
         {
-            if (branchRequirement.IsMatch(headRef))
+            if (branchRequirement.IsMatch(config.HeadRef))
                 releaseTypes.Add(releaseType);
         }
 

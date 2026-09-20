@@ -37,8 +37,7 @@ public class VersionBumpTests
                 ComponentToBump = component,
                 ResetSmallerComponents = reset,
                 CsprojPath = CsprojPath,
-            },
-            GitData = new GitData(),
+            }
         }, fs);
 
         return (new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()), ctx, fs);
@@ -102,8 +101,7 @@ public class VersionBumpTests
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
                 CsprojPath = CsprojPath,
-            },
-            GitData = new GitData(),
+            }
         }, fs);
 
         await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));
@@ -133,8 +131,7 @@ public class VersionBumpTests
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
                 CsprojPath = CsprojPath,
-            },
-            GitData = new GitData(),
+            }
         }, fs);
 
         await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));

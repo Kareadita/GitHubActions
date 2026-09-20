@@ -27,15 +27,14 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, NotifyDiscordConfiguration config, CancellationToken ct)
     {
-        var git = ctx.Configuration.GitData;
         var version = ctx.ReleaseVersion?.ToString() ?? "Unknown";
 
         var msg = config.Message.Replace("{Version}", version);
 
         var embedBuilder = new EmbedBuilder()
-            .WithTitle($"{version} - {git.PrTitle}")
+            .WithTitle($"{version} - {config.PrTitle}")
             .WithColor(Color.Green)
-            .WithDescription(BuildDescription(git));
+            .WithDescription(BuildDescription(config));
 
         if (ctx.IsTest)
         {
@@ -49,9 +48,9 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
         logger.LogInformation("Notified discord for version {Version} - {Message}", version, msg);
     }
 
-    private static string BuildDescription(GitData git)
+    private static string BuildDescription(NotifyDiscordConfiguration configuration)
     {
-        var body = git.PrDescription;
+        var body = configuration.PrDescription;
 
         if (string.IsNullOrEmpty(body))
             return string.Empty;
@@ -60,8 +59,8 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
             return body;
 
         var truncated = body[..TruncationBudget];
-        return $"{truncated}\n...and much more.\n\nRead full changelog: {PrLink(git)}";
+        return $"{truncated}\n...and much more.\n\nRead full changelog: {PrLink(configuration)}";
     }
 
-    private static string PrLink(GitData git) => $"https://github.com/{git.Repository}/pull/{git.PrNumber}";
+    private static string PrLink(NotifyDiscordConfiguration config) => $"https://github.com/{config.Repository}/pull/{config.PrNumber}";
 }

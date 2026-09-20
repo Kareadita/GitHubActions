@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
 
 namespace Kavita.ReleaseTools.Models;
 
@@ -12,8 +11,6 @@ public class GitContext: IDisposable
 
     public required string GitAuthorName { get; init; }
     public required string GitAuthorEmail { get; init; }
-
-    public required CredentialsHandler CredentialsHandler { get; init; }
 
     public Signature Signature(DateTime? date = null) => new(GitAuthorName, GitAuthorEmail, date ?? DateTime.Now);
 

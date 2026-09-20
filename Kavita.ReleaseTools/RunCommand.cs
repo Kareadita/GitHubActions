@@ -77,7 +77,7 @@ public static class RunCommand
         {
             FileSystem = fileSystem,
             Configuration = configuration,
-            Git = CreateGitContext(configuration)
+            Git = CreateGitContext()
         };
 
         return await ExecuteStagesAsync(stages, executionContext, ct);
@@ -138,15 +138,11 @@ public static class RunCommand
         return 0;
     }
 
-    private static GitContext CreateGitContext(ReleaseConfiguration configuration) => new()
+    private static GitContext CreateGitContext() => new()
     {
         Repository = new Repository("./"),
         GitAuthorName = "github-actions[bot]",
         GitAuthorEmail = "github-actions[bot]@users.noreply.github.com",
-        CredentialsHandler = (_, _, _) => new UsernamePasswordCredentials
-        {
-            Username = configuration.GitData.AuthToken,
-        }
     };
 
     private static Serilog.ILogger CreateLogger() => new LoggerConfiguration()
