@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Json.Schema.Generation.Serialization;
 using Kavita.ReleaseTools.Commands;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildLibrary;
@@ -15,6 +16,7 @@ using Kavita.ReleaseTools.Stages.VersionBump;
 
 namespace Kavita.ReleaseTools.Models;
 
+[GenerateJsonSchema]
 public class ReleaseConfiguration: IValidatableObject
 {
 
