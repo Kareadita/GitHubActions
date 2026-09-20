@@ -44,7 +44,7 @@ public partial class ParseVersionStage(ILogger<ParseVersionStage> logger): IStag
             AssemblyContent = content,
         };
 
-        logger.LogInformation("Parsed AssemblyVersion: {Version}", version);
+        logger.LogInformation("Parsed AssemblyVersion: {Version}", currentVersion);
     }
 
     [GeneratedRegex(@"(?<openTag><AssemblyVersion>)(?<version>\s*[^<]*?\s*)(?<closeTag></AssemblyVersion>)", RegexOptions.Compiled)]
