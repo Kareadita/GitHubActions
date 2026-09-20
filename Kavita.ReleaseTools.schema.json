@@ -12,6 +12,9 @@
       "type": "string",
       "description": "Path the to .csproj file that contains the version"
     },
+    "VersionXmlElement": {
+      "type": "string"
+    },
     "VersionBump": {
       "description": "A stage that allows you to bump the AssemblyVersion in a .csproj file",
       "type": [

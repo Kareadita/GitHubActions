@@ -37,6 +37,9 @@ public class ReleaseConfiguration
     [Required(ErrorMessage = "CsprojPath is required")]
     public required string CsprojPath { get; init; }
 
+    [Required]
+    public string VersionXmlElement { get; init; } = "AssemblyVersion";
+
     public VersionBumpConfiguration? VersionBump { get; init; }
     public GenerateOpenApiConfiguration? GenerateOpenApi { get; init; }
     public FlushGitChangesConfiguration? FlushGitChanges { get; init; }

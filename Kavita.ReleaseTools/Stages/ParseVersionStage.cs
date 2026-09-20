@@ -15,8 +15,6 @@ namespace Kavita.ReleaseTools.Stages;
 /// </summary>
 public partial class ParseVersionStage(ILogger<ParseVersionStage> logger): IStage
 {
-    private static readonly Regex AssemblyVersionPattern = AssemblyVersionRegex();
-
     public string Name => nameof(ParseVersionStage);
     public IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx)
     {
@@ -26,7 +24,7 @@ public partial class ParseVersionStage(ILogger<ParseVersionStage> logger): IStag
     public async Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
         var content = await ctx.FileSystem.File.ReadAllTextAsync(ctx.Configuration.CsprojPath, ct);
-        var version = FindAssemblyVersion(content);
+        var version = FindAssemblyVersion(ctx.Configuration.VersionXmlElement, content);
         if (version is null)
         {
             throw new ExecutionException($"Could not find AssemblyVersion element, {ctx.Configuration.CsprojPath}");
@@ -44,15 +42,15 @@ public partial class ParseVersionStage(ILogger<ParseVersionStage> logger): IStag
             AssemblyContent = content,
         };
 
-        logger.LogInformation("Parsed AssemblyVersion: {Version}", currentVersion);
+        logger.LogInformation("Parsed Version: {Version}", currentVersion);
     }
 
-    [GeneratedRegex(@"(?<openTag><AssemblyVersion>)(?<version>\s*[^<]*?\s*)(?<closeTag></AssemblyVersion>)", RegexOptions.Compiled)]
-    private static partial Regex AssemblyVersionRegex();
-
-    private static Match? FindAssemblyVersion(string content)
+    private static Match? FindAssemblyVersion(string versionXmlElement, string content)
     {
-        var matches = AssemblyVersionPattern.Matches(content);
+        var pattern =
+            new Regex($@"(?<openTag><{versionXmlElement}>)(?<version>\s*[^<]*?\s*)(?<closeTag></{versionXmlElement}>)", RegexOptions.IgnorePatternWhitespace);
+
+        var matches = pattern.Matches(content);
         if (matches.Count > 1)
         {
             throw new ExecutionException($"Found {matches.Count} AssemblyVersion elements, expected one");

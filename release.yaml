@@ -2,6 +2,8 @@
 
 DryRun: true
 CsprojPath: "Kavita.ReleaseTools/Kavita.ReleaseTools.csproj"
+VersionXmlElement: "Version"
+ValidateDisabledStages: false
 
 ParseReleaseTypes:
   BranchRequirements:
