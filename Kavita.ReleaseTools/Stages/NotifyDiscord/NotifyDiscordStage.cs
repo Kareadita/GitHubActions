@@ -37,9 +37,16 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
             .WithColor(Color.Green)
             .WithDescription(BuildDescription(git));
 
+        if (ctx.IsTest)
+        {
+            return;
+        }
+
         using var client = new DiscordWebhookClient(config.WebhookUrl);
 
         await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon, embeds: [embedBuilder.Build()], text: msg);
+
+        logger.LogInformation("Notified discord for version {Version} - {Message}", version, msg);
     }
 
     private static string BuildDescription(GitData git)
