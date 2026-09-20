@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -39,7 +40,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, BuildServerConfiguration config, CancellationToken ct)
     {
-        var buildPath = ctx.FileSystem.Path.GetTempPath();
+        var buildPath = ctx.FileSystem.Path.Combine(ctx.FileSystem.Path.GetTempPath(), $"{config.AppName}-release-{Guid.NewGuid():N}");
 
         foreach (var rid in config.Rids)
         {
@@ -52,7 +53,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         var sw = Stopwatch.StartNew();
         logger.LogInformation("Starting build process for {Rid}", rid);
 
-        var outputPath = ctx.FileSystem.Path.Combine(buildPath, rid, "Kavita");
+        var outputPath = ctx.FileSystem.Path.Combine(buildPath, rid, config.AppName);
 
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
@@ -124,9 +125,11 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             ctx.FileSystem.Directory.CreateDirectory(config.OutputPath);
 
         var parent = ctx.FileSystem.Path.GetDirectoryName(outputPath)!;
+        var archiveName = $"{config.AppName.ToLowerInvariant()}-{rid}.tar.gz";
+
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Tar)
-            .WithArguments("-czvf", $"{config.OutputPath}kavita-{rid}.tar.gz", "-C", parent, "Kavita")
+            .WithArguments("-czvf", $"{config.OutputPath}{archiveName}", "-C", parent, config.AppName)
             .Build()
             .RunAsync(ctx, ct);
 

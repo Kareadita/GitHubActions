@@ -34,6 +34,7 @@ public class BuildFrontendStage(ILogger<BuildFrontendStage> logger, IProcessRunn
             .WithExecutable(Npm)
             .WithArguments("ci")
             .AppendArgumentIf(config.AllowLegacyPeerDeps, "--legacy-peer-deps")
+            .WithWorkingDirectory(config.Path)
             .Build()
             .RunAsync(ctx, ct);
 

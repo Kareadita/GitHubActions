@@ -218,6 +218,10 @@
         "ReleaseTypes": {
           "$ref": "#/$defs/listOfReleaseType"
         },
+        "AppName": {
+          "type": "string",
+          "description": "Your application name (used for tar files)"
+        },
         "SlnPath": {
           "type": "string",
           "description": "Path to the solution file"

@@ -16,6 +16,12 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
     /// <summary>
+    /// Your application name (used for tar files)
+    /// </summary>
+    [Required]
+    public string AppName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Path to the solution file
     /// </summary>
     [Required(ErrorMessage = "SlnPath is required")]
