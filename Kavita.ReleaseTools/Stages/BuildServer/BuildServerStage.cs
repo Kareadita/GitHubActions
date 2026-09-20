@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
@@ -42,7 +43,12 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
     {
         var buildPath = ctx.FileSystem.Path.Combine(ctx.FileSystem.Path.GetTempPath(), $"{config.AppName}-release-{Guid.NewGuid():N}");
 
-        foreach (var rid in config.Rids)
+        var rids = config.Rids
+            .Where(kv => ctx.ReleaseTypes.Contains(kv.Key))
+            .SelectMany(kv => kv.Value)
+            .Distinct();
+
+        foreach (var rid in rids)
         {
             await PackageRid(ctx, config, buildPath, rid, ct);
         }

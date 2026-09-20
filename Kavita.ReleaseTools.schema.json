@@ -8,29 +8,9 @@
       "type": "boolean",
       "description": "Should disable stages be validated"
     },
-    "GitData": {
-      "description": "Data passed down from GitHub Actions. This is all assumed to be set in env. Unprocessed",
-      "type": "object",
-      "properties": {
-        "AuthToken": {
-          "type": "string"
-        },
-        "Repository": {
-          "type": "string"
-        },
-        "HeadRef": {
-          "type": "string"
-        },
-        "PrNumber": {
-          "type": "string"
-        },
-        "PrTitle": {
-          "type": "string"
-        },
-        "PrDescription": {
-          "type": "string"
-        }
-      }
+    "CsprojPath": {
+      "type": "string",
+      "description": "Path the to .csproj file that contains the version"
     },
     "VersionBump": {
       "description": "A stage that allows you to bump the AssemblyVersion in a .csproj file",
@@ -63,10 +43,6 @@
           "type": "boolean",
           "description": "Should parts of the version smaller than \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.VersionBump.VersionBumpConfiguration.ComponentToBump\u0022 /\u003E be reinit to 0"
         },
-        "CsprojPath": {
-          "type": "string",
-          "description": "Path the to .csproj file that contains the version to bump"
-        },
         "CommitMessage": {
           "type": [
             "null",
@@ -77,8 +53,7 @@
       },
       "required": [
         "Disabled",
-        "ComponentToBump",
-        "CsprojPath"
+        "ComponentToBump"
       ]
     },
     "GenerateOpenApi": {
@@ -157,6 +132,9 @@
         "Files": {
           "$ref": "#/$defs/listOfString",
           "description": "Which files should be tracked"
+        },
+        "AuthToken": {
+          "type": "string"
         }
       },
       "required": [
@@ -231,7 +209,7 @@
           "description": "Path to the project to build"
         },
         "Rids": {
-          "$ref": "#/$defs/listOfString",
+          "$ref": "#/$defs/dictionaryOfListOfStringReleaseTypeAndDictionaryOfListOfString",
           "description": "For which Runtime Identifiers should be packaged"
         },
         "Configuration": {
@@ -361,6 +339,18 @@
           "type": "string",
           "format": "uri",
           "description": "Icon"
+        },
+        "Repository": {
+          "type": "string"
+        },
+        "PrNumber": {
+          "type": "string"
+        },
+        "PrTitle": {
+          "type": "string"
+        },
+        "PrDescription": {
+          "type": "string"
         }
       },
       "required": [
@@ -401,18 +391,8 @@
           "description": "For which platforms to build"
         },
         "Tags": {
-          "description": "Image tags. You may use the placeholder {Version} to insert the current version",
-          "type": "object",
-          "propertyNames": {
-            "enum": [
-              "Stable",
-              "Nightly",
-              "Canary"
-            ]
-          },
-          "additionalProperties": {
-            "$ref": "#/$defs/listOfString"
-          }
+          "$ref": "#/$defs/dictionaryOfListOfStringReleaseTypeAndDictionaryOfListOfString",
+          "description": "Image tags. You may use the placeholder {Version} to insert the current version"
         },
         "Images": {
           "$ref": "#/$defs/listOfString",
@@ -493,7 +473,7 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "BranchRequirements": {
-          "description": "Requierments per relase",
+          "description": "Requirements per release",
           "type": "object",
           "propertyNames": {
             "enum": [
@@ -519,6 +499,9 @@
               "DoesNotContain"
             ]
           }
+        },
+        "HeadRef": {
+          "type": "string"
         }
       },
       "required": [
@@ -527,7 +510,7 @@
     }
   },
   "required": [
-    "GitData"
+    "CsprojPath"
   ],
   "$defs": {
     "listOfReleaseType": {
@@ -552,6 +535,19 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "dictionaryOfListOfStringReleaseTypeAndDictionaryOfListOfString": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "Stable",
+          "Nightly",
+          "Canary"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/listOfString"
       }
     },
     "listOfFromTo": {

@@ -38,7 +38,7 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
     /// </summary>
     /// <remarks>https://learn.microsoft.com/en-us/dotnet/core/rid-catalog</remarks>
     [Required(ErrorMessage = "Rids is required")]
-    public required List<string> Rids { get; init; } = [];
+    public required Dictionary<ReleaseType, List<string>> Rids { get; init; } = [];
 
     /// <summary>
     /// Which configuration to build against; Defaults to Release
