@@ -28,13 +28,13 @@ public class BuildLibraryStage(ILogger<BuildLibraryStage> logger, IProcessRunner
     {
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
-            .WithArguments("build", "--configuration", config.Configuration, "--project", config.CsprojPath, "--no-restore")
+            .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration, "--no-restore")
             .Build()
             .RunAsync(ctx, ct);
 
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
-            .WithArguments("pack", "--configuration", config.CsprojPath, "--output", config.OutputDirectory)
+            .WithArguments("pack", config.CsprojPath, "--configuration", config.Configuration, "--output", config.OutputDirectory)
             .Build()
             .RunAsync(ctx, ct);
     }
