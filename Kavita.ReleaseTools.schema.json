@@ -314,6 +314,26 @@
         "object"
       ],
       "properties": {
+        "Repository": {
+          "type": "string"
+        },
+        "PrNumber": {
+          "type": "string"
+        },
+        "PrTitle": {
+          "type": "string"
+        },
+        "PrDescription": {
+          "type": "string"
+        },
+        "Owner": {
+          "type": "string",
+          "readOnly": true
+        },
+        "RepositoryName": {
+          "type": "string",
+          "readOnly": true
+        },
         "Disabled": {
           "type": "boolean"
         },
@@ -339,18 +359,6 @@
           "type": "string",
           "format": "uri",
           "description": "Icon"
-        },
-        "Repository": {
-          "type": "string"
-        },
-        "PrNumber": {
-          "type": "string"
-        },
-        "PrTitle": {
-          "type": "string"
-        },
-        "PrDescription": {
-          "type": "string"
         }
       },
       "required": [
@@ -458,6 +466,59 @@
         "Executable",
         "Arguments",
         "WorkingDirectory"
+      ]
+    },
+    "CreateGitHubRelease": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Repository": {
+          "type": "string"
+        },
+        "PrNumber": {
+          "type": "string"
+        },
+        "PrTitle": {
+          "type": "string"
+        },
+        "PrDescription": {
+          "type": "string"
+        },
+        "Owner": {
+          "type": "string",
+          "readOnly": true
+        },
+        "RepositoryName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "AssetPath": {
+          "type": "string",
+          "description": "Path to assets to upload for the release"
+        },
+        "VersionTemplate": {
+          "type": "string",
+          "description": "Release tag template. Use {Version}"
+        },
+        "TitleTemplate": {
+          "type": "string"
+        },
+        "AuthToken": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "AssetPath",
+        "VersionTemplate",
+        "TitleTemplate"
       ]
     },
     "ParseReleaseTypes": {
