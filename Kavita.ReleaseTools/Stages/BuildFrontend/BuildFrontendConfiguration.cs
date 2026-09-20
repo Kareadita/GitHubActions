@@ -13,15 +13,27 @@ public class BuildFrontendConfiguration: IStageConfiguration
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
+    /// <summary>
+    /// Working directory. (Where package.json is located)
+    /// </summary>
     [Required(ErrorMessage = "Path is required")]
     public required string Path { get; init; }
 
+    /// <summary>
+    /// Which script to run to build the frontend
+    /// </summary>
     [Required(ErrorMessage = "BuildScript is required")]
     public required string BuildScript { get; init; }
 
+    /// <summary>
+    /// Path relative to <see cref="Path"/> where the frontend is created
+    /// </summary>
     [Required(ErrorMessage = "OutputPath is required")]
     public required string OutputPath { get; init; }
 
+    /// <summary>
+    /// Where should the artefacts be copied to, requires <see cref="OutputPath"/>
+    /// </summary>
     public required string CopyTo { get; init; }
     /// <summary>
     /// When true, deletes the destination directory before copying.

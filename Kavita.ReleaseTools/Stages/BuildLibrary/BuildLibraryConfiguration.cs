@@ -13,12 +13,21 @@ public class BuildLibraryConfiguration: IStageConfiguration
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
+    /// <summary>
+    /// Path to the project file
+    /// </summary>
     [Required(ErrorMessage = "CsprojPath is required")]
     public required string CsprojPath { get; init; }
 
+    /// <summary>
+    /// Which configuration to build against, defaults to Release
+    /// </summary>
     [Required]
     public required string Configuration { get; init; } = "Release";
 
+    /// <summary>
+    /// Where should the nupkg be generated to
+    /// </summary>
     [Required]
     public required string OutputDirectory { get; init; } = "./artifacts";
 }

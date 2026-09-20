@@ -22,12 +22,21 @@ public class NotifyDiscordConfiguration: IStageConfiguration
     [Required(ErrorMessage = "WebhookUrl is required (DISCORD_WEBHOOK)")]
     public string? WebhookUrl { get; init; }
 
+    /// <summary>
+    /// Message
+    /// </summary>
     [Required(ErrorMessage = "Message is required")]
     public string Message { get; init; } = "A new version is available! {Version}";
 
+    /// <summary>
+    /// Username
+    /// </summary>
     [Required(ErrorMessage = "Username is required")]
     public required string Username { get; init; }
 
+    /// <summary>
+    /// Icon
+    /// </summary>
     [Url]
     public required string Icon { get; init; } =
         "https://cdn.discordapp.com/avatars/851865280727613501/ac0f4d9a4b52148789a963ccd08d5219.webp?size=80"; // GitHub icon

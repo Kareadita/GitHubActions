@@ -13,14 +13,23 @@ public class ParseReleaseTypesConfiguration: IStageConfiguration
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
+    /// <summary>
+    /// Requierments per relase
+    /// </summary>
     [Required]
     public required Dictionary<ReleaseType, BranchRequirement> BranchRequirements { get; init; }
 }
 
 public class BranchRequirement
 {
+    /// <summary>
+    /// The branch has to start with
+    /// </summary>
 
     public required string StartWiths { get; init; } = string.Empty;
+    /// <summary>
+    /// The branch cannot contain
+    /// </summary>
     public required string DoesNotContain { get; init; } = string.Empty;
 
     public bool IsMatch(string branch) => branch.StartsWith(StartWiths) && !branch.Contains(DoesNotContain);

@@ -176,13 +176,16 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "Path": {
-          "type": "string"
+          "type": "string",
+          "description": "Working directory. (Where package.json is located)"
         },
         "BuildScript": {
-          "type": "string"
+          "type": "string",
+          "description": "Which script to run to build the frontend"
         },
         "OutputPath": {
-          "type": "string"
+          "type": "string",
+          "description": "Path relative to \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.BuildFrontend.BuildFrontendConfiguration.Path\u0022 /\u003E where the frontend is created"
         },
         "CopyTo": {
           "type": "string"
@@ -216,22 +219,28 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "SlnPath": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the solution file"
         },
         "CsprojPath": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the project to build"
         },
         "Rids": {
-          "$ref": "#/$defs/listOfString"
+          "$ref": "#/$defs/listOfString",
+          "description": "For which Runtime Identifiers should be packaged"
         },
         "Configuration": {
-          "type": "string"
+          "type": "string",
+          "description": "Which configuration to build against; Defaults to Release"
         },
         "SelfContained": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Build self contained"
         },
         "OutputPath": {
-          "type": "string"
+          "type": "string",
+          "description": "Where should the tar balls be stored"
         },
         "RenameFiles": {
           "$ref": "#/$defs/listOfFromTo",
@@ -265,13 +274,16 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "CsprojPath": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the project file"
         },
         "Configuration": {
-          "type": "string"
+          "type": "string",
+          "description": "Which configuration to build against, defaults to Release"
         },
         "OutputDirectory": {
-          "type": "string"
+          "type": "string",
+          "description": "Where should the nupkg be generated to"
         }
       },
       "required": [
@@ -293,16 +305,20 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "ApiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "Your NuGet ApiKey. Do not store this in Git. Prefer the NUGET_API_KEY env var"
         },
         "OutputDirectory": {
-          "type": "string"
+          "type": "string",
+          "description": "Where our the nupkg files located"
         },
         "Source": {
-          "type": "string"
+          "type": "string",
+          "description": "NuGet source"
         },
         "SkipDuplicate": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Skip duplicate version, defaults to true"
         }
       },
       "required": [
@@ -330,14 +346,17 @@
           "description": "Webhook the release notification is posted to. Comes from the \u003Cc\u003EDISCORD_WEBHOOK\u003C/c\u003E\nenvironment variable, so the webhook doesn\u0027t have to be committed."
         },
         "Message": {
-          "type": "string"
+          "type": "string",
+          "description": "Message"
         },
         "Username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username"
         },
         "Icon": {
           "type": "string",
-          "format": "uri"
+          "format": "uri",
+          "description": "Icon"
         }
       },
       "required": [
@@ -358,22 +377,27 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "Push": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Push images upstream"
         },
         "Load": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Load into local docker registry"
         },
         "Context": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker context"
         },
         "File": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker file"
         },
         "Platforms": {
-          "$ref": "#/$defs/listOfString"
+          "$ref": "#/$defs/listOfString",
+          "description": "For which platforms to build"
         },
         "Tags": {
-          "description": "You may use the placeholder {Version} to insert the current version",
+          "description": "Image tags. You may use the placeholder {Version} to insert the current version",
           "type": "object",
           "propertyNames": {
             "enum": [
@@ -387,7 +411,8 @@
           }
         },
         "Images": {
-          "$ref": "#/$defs/listOfString"
+          "$ref": "#/$defs/listOfString",
+          "description": "Image names (Becomes a Matrix with \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.Docker.DockerConfiguration.Tags\u0022 /\u003E)"
         },
         "LogLevel": {
           "$ref": "#/$defs/logLevel",
@@ -399,7 +424,8 @@
             "Error",
             "Critical",
             "None"
-          ]
+          ],
+          "description": "LogLevel of the docker build command"
         }
       }
     },
@@ -416,6 +442,7 @@
           "$ref": "#/$defs/listOfReleaseType"
         },
         "BranchRequirements": {
+          "description": "Requierments per relase",
           "type": "object",
           "propertyNames": {
             "enum": [
@@ -428,10 +455,12 @@
             "type": "object",
             "properties": {
               "StartWiths": {
-                "type": "string"
+                "type": "string",
+                "description": "The branch has to start with"
               },
               "DoesNotContain": {
-                "type": "string"
+                "type": "string",
+                "description": "The branch cannot contain"
               }
             },
             "required": [

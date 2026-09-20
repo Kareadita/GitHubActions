@@ -15,19 +15,38 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
 
+    /// <summary>
+    /// Path to the solution file
+    /// </summary>
     [Required(ErrorMessage = "SlnPath is required")]
     public required string SlnPath { get; init; }
 
+    /// <summary>
+    /// Path to the project to build
+    /// </summary>
     [Required(ErrorMessage = "CsprojPath is required")]
     public required string CsprojPath { get; init; }
 
+    /// <summary>
+    /// For which Runtime Identifiers should be packaged
+    /// </summary>
+    /// <remarks>https://learn.microsoft.com/en-us/dotnet/core/rid-catalog</remarks>
     [Required(ErrorMessage = "Rids is required")]
-    public required List<string> Rids { get; init; }
+    public required List<string> Rids { get; init; } = [];
 
+    /// <summary>
+    /// Which configuration to build against; Defaults to Release
+    /// </summary>
     public string Configuration { get; init; } = "Release";
 
+    /// <summary>
+    /// Build self contained
+    /// </summary>
     public bool SelfContained { get; init; } = true;
 
+    /// <summary>
+    /// Where should the tar balls be stored
+    /// </summary>
     public string OutputPath { get; init; } = "./";
 
     /// <summary>

@@ -55,16 +55,18 @@ public class BuildFrontendStage(ILogger<BuildFrontendStage> logger, IProcessRunn
             ctx.FileSystem.Directory.Delete(destination, recursive: true);
         }
 
+        var outputPath = ctx.FileSystem.Path.Combine(config.Path, config.OutputPath);
+
         if (!ctx.FileSystem.Directory.Exists(destination))
         {
-            logger.LogDebug("Moving {Source} to {Destination}", config.OutputPath, destination);
-            ctx.FileSystem.Directory.Move(config.OutputPath, destination);
+            logger.LogDebug("Moving {Source} to {Destination}", outputPath, destination);
+            ctx.FileSystem.Directory.Move(outputPath, destination);
             return;
         }
 
-        logger.LogDebug("Merging {Source} into {Destination}", config.OutputPath, destination);
-        CopyDirectory(ctx, config.OutputPath, destination);
-        ctx.FileSystem.Directory.Delete(config.OutputPath, recursive: true);
+        logger.LogDebug("Merging {Source} into {Destination}", outputPath, destination);
+        CopyDirectory(ctx, outputPath, destination);
+        ctx.FileSystem.Directory.Delete(outputPath, recursive: true);
     }
 
     private static void CopyDirectory(ExecutionContext ctx, string source, string destination)
