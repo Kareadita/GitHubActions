@@ -12,6 +12,7 @@ using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
 using Kavita.ReleaseTools.Stages.ParseReleaseTypes;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
+using Kavita.ReleaseTools.Stages.RunScript;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
 namespace Kavita.ReleaseTools.Models;
@@ -41,6 +42,7 @@ public class ReleaseConfiguration: IValidatableObject
     public PublishToNuGetConfiguration? PublishToNuGet { get; init; }
     public NotifyDiscordConfiguration? NotifyDiscord { get; init; }
     public DockerConfiguration? Docker { get; init; }
+    public RunScriptConfiguration? RunScript { get; init; }
 
     public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; } = new()
     {

@@ -20,6 +20,7 @@ using Kavita.ReleaseTools.Stages.GenerateOpenApi;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
 using Kavita.ReleaseTools.Stages.ParseReleaseTypes;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
+using Kavita.ReleaseTools.Stages.RunScript;
 using Kavita.ReleaseTools.Stages.VersionBump;
 using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
@@ -168,6 +169,7 @@ public static class RunCommand
         // Registration order is execution order
         services.AddScoped<IStage, ParseReleaseTypesStage>();
         services.AddScoped<IStage, VersionBumpStage>();
+        services.AddScoped<IStage, RunScriptStage>();
         services.AddScoped<IStage, GenerateOpenApiStage>();
         services.AddScoped<IStage, FlushGitChangesStage>();
         services.AddScoped<IStage, BuildFrontendStage>();
