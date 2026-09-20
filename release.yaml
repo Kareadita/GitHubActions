@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=./Kavita.ReleaseTools.schema.json
+
+DryRun: true
+
+ParseReleaseTypes:
+  BranchRequirements:
+    # Always stable releases
+    Stable:
+      DoesNotContain: []
+      StartWiths: ""
+
+VersionBump:
+  CsprojPath: "Kavita.ReleaseTools/Kavita.ReleaseTools.csproj"
+  ComponentToBump: Build
+
+RunScript:
+  Executable: "dotnet"
+  Arguments:
+    - "run"
+    - "--project"
+    - "Kavita.ReleaseTools"
+    - "generate-schema"
+    - "-o"
+    - "Kavita.ReleaseTools.schema.json"
+
+FlushGitChanges:
+  Files:
+    - "Kavita.ReleaseTools/Kavita.ReleaseTools.csproj"
+    - "Kavita.ReleaseTools.schema.json"
+
+BuildLibrary:
+  CsprojPath: "Kavita.ReleaseTools/Kavita.ReleaseTools.csproj"
+  OutputDirectory: "output"
+
+PublishToNuGet:
+  Disabled: true
+  OutputDirectory: "output"

@@ -1,0 +1,63 @@
+name: 'Release Tools Base'
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: false
+        type: string
+        default: "10.0.x"
+      config-path:
+        required: true
+        type: string
+      tool-version:
+        required: false
+        type: string
+        default: "" # empty = latest
+
+jobs:
+  run-tool:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Find current Pull Request
+        uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+        with:
+          state: all
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ inputs.dotnet-version }}'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Install Kavita.ReleaseTools
+        run: |
+          if [ -z "${{ inputs.tool-version }}" ]; then
+            dotnet tool install --global Kavita.ReleaseTools
+          else
+            dotnet tool install --global Kavita.ReleaseTools --version ${{ inputs.tool-version }}
+          fi
+
+      - name: Run Kavita.ReleaseTools
+        run: kavita-releasetools run --config ${{ inputs.config-path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_TITLE: ${{ steps.findPr.outputs.title }}
+          PR_NUMBER: ${{ steps.findPr.outputs.number }}
+          PR_DESCRIPTION: ${{ steps.findPr.outputs.body }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

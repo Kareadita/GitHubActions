@@ -1,0 +1,16 @@
+on:
+  pull_request:
+    types: [closed]
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  run-release-tool:
+    if: github.event.pull_request.merged == true
+    uses: "./.github/workflows/release-tools.base.yml"
+    secrets: inherit
+    with:
+      config-path: "release.yaml"
