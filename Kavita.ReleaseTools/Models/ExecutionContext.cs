@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 using Kavita.ReleaseTools.Stages.VersionBump;
 
 namespace Kavita.ReleaseTools.Models;
@@ -12,7 +13,9 @@ public class ExecutionContext: IDisposable
     /// <summary>
     /// The release being created. Set in <see cref="VersionBumpStage"/>
     /// </summary>
-    public Version? ReleaseVersion { get; set; }
+    public Version ReleaseVersion { get; set; } = null!;
+
+    public VersionParseArtifacts VersionParseArtifacts { get; set; } = null!;
 
     public IReadOnlyList<ReleaseType> ReleaseTypes { get; set; } = [];
 
@@ -27,4 +30,10 @@ public class ExecutionContext: IDisposable
 
         Git?.Dispose();
     }
+}
+
+public class VersionParseArtifacts
+{
+    public required string AssemblyContent { get; init; }
+    public required Match AssemblyMatch { get; init; }
 }

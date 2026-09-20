@@ -34,12 +34,6 @@ public class VersionBumpConfiguration: IStageConfiguration
     public bool ResetSmallerComponents { get; init; }
 
     /// <summary>
-    /// Path the to .csproj file that contains the version to bump
-    /// </summary>
-    [Required(ErrorMessage = "CsprojPath is required")]
-    public required string CsprojPath { get; init; }
-
-    /// <summary>
     /// Custom commit message. Only relevant if <see cref="Commit"/> is true
     /// </summary>
     public string? CommitMessage { get; init; }

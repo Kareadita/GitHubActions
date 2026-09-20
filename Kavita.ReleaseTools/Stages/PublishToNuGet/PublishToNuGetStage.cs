@@ -28,9 +28,6 @@ public class PublishToNuGetStage(ILogger<PublishToNuGetStage> logger, IProcessRu
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, PublishToNuGetConfiguration config, CancellationToken ct)
     {
-        if (ctx.ReleaseVersion is null)
-            throw new ExecutionException($"Cannot publish to NuGet without a version. Did you configure {nameof(VersionBumpStage)}");
-
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
             .WithArguments("nuget", "push", $"{config.OutputDirectory}/*.nupkg", "--api-key", config.ApiKey, "--source", config.Source)

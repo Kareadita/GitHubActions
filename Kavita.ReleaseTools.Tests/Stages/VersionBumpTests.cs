@@ -31,12 +31,12 @@ public class VersionBumpTests
 
         var ctx = StageTestsHelper.CreateExecutionContext(new ReleaseConfiguration
         {
+            CsprojPath = CsprojPath,
             VersionBump = new VersionBumpConfiguration
             {
                 Disabled = false,
                 ComponentToBump = component,
                 ResetSmallerComponents = reset,
-                CsprojPath = CsprojPath,
             }
         }, fs);
 
@@ -95,12 +95,12 @@ public class VersionBumpTests
         });
         var ctx = StageTestsHelper.CreateExecutionContext(new ReleaseConfiguration
         {
+            CsprojPath = CsprojPath,
             VersionBump = new VersionBumpConfiguration
             {
                 Disabled = false,
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
-                CsprojPath = CsprojPath,
             }
         }, fs);
 
@@ -125,12 +125,12 @@ public class VersionBumpTests
         });
         var ctx = StageTestsHelper.CreateExecutionContext(new ReleaseConfiguration
         {
+            CsprojPath = CsprojPath,
             VersionBump = new VersionBumpConfiguration
             {
                 Disabled = false,
                 ComponentToBump = VersionComponent.Major,
                 ResetSmallerComponents = true,
-                CsprojPath = CsprojPath,
             }
         }, fs);
 
@@ -176,7 +176,6 @@ public class VersionBumpTests
             Disabled = false,
             ComponentToBump = component,
             ResetSmallerComponents = resetSmallerComponents,
-            CsprojPath = string.Empty
         }, version);
 
         Assert.Equal(expected, actual);

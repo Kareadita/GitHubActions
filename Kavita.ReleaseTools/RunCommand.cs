@@ -11,6 +11,7 @@ using Kavita.ReleaseTools.Commands.ExternalCommands;
 using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
 using Kavita.ReleaseTools.Rendering;
+using Kavita.ReleaseTools.Stages;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildLibrary;
 using Kavita.ReleaseTools.Stages.BuildServer;
@@ -163,6 +164,7 @@ public static class RunCommand
         services.AddSingleton<IProcessRunner, ProcessRunner>();
 
         // Registration order is execution order
+        services.AddScoped<IStage, ParseVersionStage>();
         services.AddScoped<IStage, ParseReleaseTypesStage>();
         services.AddScoped<IStage, VersionBumpStage>();
         services.AddScoped<IStage, RunScriptStage>();

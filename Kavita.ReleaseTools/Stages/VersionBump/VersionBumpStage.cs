@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Commands.Git;
@@ -12,15 +11,14 @@ using Version = System.Version;
 
 namespace Kavita.ReleaseTools.Stages.VersionBump;
 
-public partial class VersionBumpStage(ILogger<VersionBumpStage> logger) : ConfiguredStage<VersionBumpConfiguration>(logger)
+public class VersionBumpStage(ILogger<VersionBumpStage> logger) : ConfiguredStage<VersionBumpConfiguration>(logger)
 {
-    private static readonly Regex AssemblyVersionPattern = AssemblyVersionRegex();
 
     public override string Name => nameof(VersionBumpStage);
 
     protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, VersionBumpConfiguration config)
     {
-        return ValidationHelpers.ValidateCsprojPath(ctx, Name, config.CsprojPath);
+        return ValidationHelpers.ValidateCsprojPath(ctx, Name, ctx.Configuration.CsprojPath);
     }
 
     protected override VersionBumpConfiguration? GetConfiguration(ReleaseConfiguration configuration)
@@ -30,28 +28,18 @@ public partial class VersionBumpStage(ILogger<VersionBumpStage> logger) : Config
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, VersionBumpConfiguration config, CancellationToken ct)
     {
-        var content = await ctx.FileSystem.File.ReadAllTextAsync(config.CsprojPath, ct);
+        var newVersion = BumpVersion(config, ctx.ReleaseVersion);
 
-        var currentVersion = ReadAssemblyVersion(content);
-        if (currentVersion is null)
-        {
-            throw new ExecutionException($"Version could not be parsed from {config.CsprojPath}");
-        }
+        logger.LogInformation("Updating AssemblyVersion from {OldVersion} to {newVersion}", ctx.ReleaseVersion, newVersion);
 
-        var newVersion = BumpVersion(config, currentVersion);
-
-        logger.LogInformation("Updating AssemblyVersion from {OldVersion} to {newVersion}", currentVersion, newVersion);
-
-        var updated = SetAssemblyVersion(content, newVersion);
-        await ctx.FileSystem.File.WriteAllTextAsync(config.CsprojPath, updated, ct);
-
+        await SetAssemblyVersion(ctx, newVersion, ct);
 
         if (config.Commit)
         {
             var commitCommand = new GitCommitCommand.Builder()
                 .WithCommitMessage(config.CommitMessage ?? "Bump Version")
                 .WithCommitOptions(new CommitOptions { AllowEmptyCommit = false })
-                .WithFile(config.CsprojPath)
+                .WithFile(ctx.Configuration.CsprojPath)
                 .Build();
             await commitCommand.RunAsync(ctx, ct);
         }
@@ -59,37 +47,21 @@ public partial class VersionBumpStage(ILogger<VersionBumpStage> logger) : Config
         ctx.ReleaseVersion = newVersion;
     }
 
-    private static Version? ReadAssemblyVersion(string content)
+    private static async Task SetAssemblyVersion(ExecutionContext ctx, Version version, CancellationToken ct)
     {
-        var match = FindAssemblyVersion(content);
-        return match is not null && Version.TryParse(match.Groups["version"].Value.Trim(), out var version)
-            ? version
-            : null;
-    }
+        var match = ctx.VersionParseArtifacts.AssemblyMatch;
 
-    private static string SetAssemblyVersion(string content, Version version)
-    {
-        var match = FindAssemblyVersion(content)
-            ?? throw new ExecutionException("No AssemblyVersion element to write");
-
-        return string.Concat(
-            content[..match.Index],
+        var newContent = string.Concat(
+            ctx.VersionParseArtifacts.AssemblyContent[..match.Index],
             match.Groups["openTag"].Value,
             version.ToString(),
             match.Groups["closeTag"].Value,
-            content[(match.Index + match.Length)..]);
+            ctx.VersionParseArtifacts.AssemblyContent[(match.Index + match.Length)..]);
+
+        await ctx.FileSystem.File.WriteAllTextAsync(ctx.Configuration.CsprojPath, newContent, ct);
     }
 
-    private static Match? FindAssemblyVersion(string content)
-    {
-        var matches = AssemblyVersionPattern.Matches(content);
-        if (matches.Count > 1)
-        {
-            throw new ExecutionException($"Found {matches.Count} AssemblyVersion elements, expected one");
-        }
 
-        return matches.Count == 1 ? matches[0] : null;
-    }
 
     public static Version BumpVersion(VersionBumpConfiguration config, Version version)
     {
@@ -120,6 +92,5 @@ public partial class VersionBumpStage(ILogger<VersionBumpStage> logger) : Config
         };
     }
 
-    [GeneratedRegex(@"(?<openTag><AssemblyVersion>)(?<version>\s*[^<]*?\s*)(?<closeTag></AssemblyVersion>)", RegexOptions.Compiled)]
-    private static partial Regex AssemblyVersionRegex();
+
 }

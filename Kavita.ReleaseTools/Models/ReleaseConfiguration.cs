@@ -30,6 +30,12 @@ public class ReleaseConfiguration
     /// </summary>
     public bool ValidateDisabledStages { get; set; } = true;
 
+    /// <summary>
+    /// Path the to .csproj file that contains the version
+    /// </summary>
+    [Required(ErrorMessage = "CsprojPath is required")]
+    public required string CsprojPath { get; init; }
+
     public VersionBumpConfiguration? VersionBump { get; init; }
     public GenerateOpenApiConfiguration? GenerateOpenApi { get; init; }
     public FlushGitChangesConfiguration? FlushGitChanges { get; init; }

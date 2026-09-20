@@ -30,10 +30,7 @@ public class DockerStage(ILogger<DockerStage> logger, IProcessRunner runner) : C
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, DockerConfiguration config, CancellationToken ct)
     {
-        if (ctx.ReleaseVersion is null)
-            throw new ExecutionException($"Cannot push images without a version. Did you configure {nameof(VersionBumpStage)}");
-
-        var version = ctx.ReleaseVersion?.ToString();
+        var version = ctx.ReleaseVersion.ToString();
         var tags = config.Tags
             .Where(kv => ctx.ReleaseTypes.Contains(kv.Key))
             .SelectMany(kv => kv.Value)
