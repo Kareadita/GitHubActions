@@ -15,6 +15,7 @@ using Kavita.ReleaseTools.Stages;
 using Kavita.ReleaseTools.Stages.BuildFrontend;
 using Kavita.ReleaseTools.Stages.BuildLibrary;
 using Kavita.ReleaseTools.Stages.BuildServer;
+using Kavita.ReleaseTools.Stages.CreateGitHubRelease;
 using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
@@ -175,6 +176,7 @@ public static class RunCommand
         services.AddScoped<IStage, BuildLibraryStage>();
         services.AddScoped<IStage, PublishToNuGetStage>();
         services.AddScoped<IStage, DockerStage>();
+        services.AddScoped<IStage, CreateGitHubReleaseStage>();
         services.AddScoped<IStage, NotifyDiscordStage>();
 
         return services.BuildServiceProvider();
