@@ -11,3 +11,4 @@ release.test.yaml
 *.tar.gz
 test.sh
 .DS_Store
+output

@@ -5,10 +5,18 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyVersion>0.0.1</AssemblyVersion>
+        <Version>0.0.1</Version>
 
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kavita-releasetools</ToolCommandName>
+        <PackageId>Kavita.ReleaseTools</PackageId>
+
+        <Authors>Kareadita</Authors>
+        <Description>Kareadita C# tool for packaging and releases</Description>
+        <PackageReadmeFile>NugetReadMe.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/Kareadita/GitHubActions</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Kareadita/GitHubActions</RepositoryUrl>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -36,6 +44,11 @@
       <PackageReference Include="Serilog" Version="4.4.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="6.*" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../LICENSE" Pack="true" PackagePath="" />
+        <None Include="../NugetReadMe.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
 </Project>
