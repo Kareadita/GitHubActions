@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Kavita.ReleaseTools.Models;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace Kavita.ReleaseTools.Rendering;
 
@@ -24,20 +25,30 @@ public static class ValidationReport
 
     private static Table BuildSummary(IReadOnlyList<ValidationIssue> issues)
     {
+        var anySolutions = issues.Any(i => i.Solutions.Count > 0);
+
         var table = new Table()
             .Border(TableBorder.Rounded)
             .AddColumn("Stage")
-            .AddColumn("Message")
-            .AddColumn("Solutions");
+            .AddColumn("Message");
+
+        if (anySolutions)
+            table = table.AddColumn("Solutions");
 
         foreach (var issue in issues)
         {
-            table.AddRow(
+            List<IRenderable> columns = [
                 new Markup($"[yellow]{Markup.Escape(issue.StageName)}[/]"),
-                new Markup($"[red]{Markup.Escape(issue.Message)}[/]"),
-                new Markup(issue.Solutions.Count == 0
+                new Markup($"[red]{Markup.Escape(issue.Message)}[/]")
+            ];
+            if (anySolutions)
+            {
+                columns.Add(new Markup(issue.Solutions.Count == 0
                     ? "[grey]—[/]"
                     : $"[green]{issue.Solutions.Count}[/]"));
+            }
+
+            table.AddRow([.. columns]);
         }
 
         return table;

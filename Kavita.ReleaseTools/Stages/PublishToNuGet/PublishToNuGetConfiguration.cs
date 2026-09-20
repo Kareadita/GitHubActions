@@ -17,7 +17,7 @@ public class PublishToNuGetConfiguration: IStageConfiguration
     /// <summary>
     /// Your NuGet ApiKey. Do not store this in Git. Prefer the NUGET_API_KEY env var
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "NUGET_API_KEY must be set")]
     [FromEnvironment("NUGET_API_KEY")]
     public string ApiKey { get; init; } = string.Empty;
 

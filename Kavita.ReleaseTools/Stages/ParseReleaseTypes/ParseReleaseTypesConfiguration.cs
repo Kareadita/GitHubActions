@@ -21,7 +21,7 @@ public class ParseReleaseTypesConfiguration: IStageConfiguration
     [Required]
     public required Dictionary<ReleaseType, BranchRequirement> BranchRequirements { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "GITHUB_HEAD_REF must be set")]
     [FromEnvironment("GITHUB_HEAD_REF")]
     public string HeadRef { get; init; } = string.Empty;
 }

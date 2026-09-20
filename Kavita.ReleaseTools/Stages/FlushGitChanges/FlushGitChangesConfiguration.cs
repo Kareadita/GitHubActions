@@ -33,7 +33,7 @@ public class FlushGitChangesConfiguration: IStageConfiguration
     /// </summary>
     public required List<string> Files { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "GITHUB_TOKEN must be set")]
     [FromEnvironment("GITHUB_TOKEN")]
     public string AuthToken { get; init; } = string.Empty;
 }

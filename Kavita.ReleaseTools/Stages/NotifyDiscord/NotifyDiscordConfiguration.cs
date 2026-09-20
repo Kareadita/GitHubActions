@@ -19,7 +19,7 @@ public class NotifyDiscordConfiguration: IStageConfiguration
     /// environment variable, so the webhook doesn't have to be committed.
     /// </summary>
     [FromEnvironment("DISCORD_WEBHOOK")]
-    [Required(ErrorMessage = "WebhookUrl is required (DISCORD_WEBHOOK)")]
+    [Required(ErrorMessage = "DISCORD_WEBHOOK must be set")]
     public string? WebhookUrl { get; init; }
 
     /// <summary>
@@ -41,19 +41,19 @@ public class NotifyDiscordConfiguration: IStageConfiguration
     public required string Icon { get; init; } =
         "https://cdn.discordapp.com/avatars/851865280727613501/ac0f4d9a4b52148789a963ccd08d5219.webp?size=80"; // GitHub icon
 
-    [Required]
+    [Required(ErrorMessage = "GITHUB_REPOSITORY must be set")]
     [FromEnvironment("GITHUB_REPOSITORY")]
     public string Repository { get; init; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "PR_NUMBER must be set")]
     [FromEnvironment("PR_NUMBER")]
     public string PrNumber { get; init; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "PR_TITLE must be set")]
     [FromEnvironment("PR_TITLE")]
     public string PrTitle { get; init; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "PR_DESCRIPTION must be set")]
     [FromEnvironment("PR_DESCRIPTION")]
     public string PrDescription { get; init; } = string.Empty;
 
