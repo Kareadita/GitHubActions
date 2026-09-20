@@ -1,13 +1,10 @@
 # yaml-language-server: $schema=./Kavita.ReleaseTools.schema.json
 
-DryRun: true
 CsprojPath: "Kavita.ReleaseTools/Kavita.ReleaseTools.csproj"
 VersionXmlElement: "Version"
-ValidateDisabledStages: false
 
 ParseReleaseTypes:
   BranchRequirements:
-    # Always stable releases
     Stable:
       DoesNotContain: []
       StartWiths: ""
@@ -35,5 +32,4 @@ BuildLibrary:
   OutputDirectory: "output"
 
 PublishToNuGet:
-  Disabled: true
   OutputDirectory: "output"
