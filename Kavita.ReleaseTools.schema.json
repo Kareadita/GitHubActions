@@ -1,0 +1,507 @@
+{
+  "type": "object",
+  "properties": {
+    "DryRun": {
+      "type": "boolean"
+    },
+    "ValidateDisabledStages": {
+      "type": "boolean",
+      "description": "Should disable stages be validated"
+    },
+    "GitData": {
+      "description": "Data passed down from GitHub Actions. This is all assumed to be set in env. Unprocessed",
+      "type": "object",
+      "properties": {
+        "AuthToken": {
+          "type": "string"
+        },
+        "Repository": {
+          "type": "string"
+        },
+        "HeadRef": {
+          "type": "string"
+        },
+        "PrNumber": {
+          "type": "string"
+        },
+        "PrTitle": {
+          "type": "string"
+        },
+        "PrDescription": {
+          "type": "string"
+        }
+      }
+    },
+    "VersionBump": {
+      "description": "A stage that allows you to bump the AssemblyVersion in a .csproj file",
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "Commit": {
+          "type": "boolean",
+          "description": "Should this stage create a seperate commit"
+        },
+        "ComponentToBump": {
+          "$ref": "#/$defs/versionComponent",
+          "enum": [
+            "Major",
+            "Minor",
+            "Build",
+            "Revision"
+          ],
+          "description": "Which part of the version should be bumped"
+        },
+        "ResetSmallerComponents": {
+          "type": "boolean",
+          "description": "Should parts of the version smaller than \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.VersionBump.VersionBumpConfiguration.ComponentToBump\u0022 /\u003E be reinit to 0"
+        },
+        "CsprojPath": {
+          "type": "string",
+          "description": "Path the to .csproj file that contains the version to bump"
+        },
+        "CommitMessage": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Custom commit message. Only relevant if \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.VersionBump.VersionBumpConfiguration.Commit\u0022 /\u003E is true"
+        }
+      },
+      "required": [
+        "Disabled",
+        "ComponentToBump",
+        "CsprojPath"
+      ]
+    },
+    "GenerateOpenApi": {
+      "description": "A stage that allows for the generation of the opanapi spec (swagger)",
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "CsprojPath": {
+          "type": "string",
+          "description": "Path to the project that produces the assembly the spec is generated from"
+        },
+        "SwashbuckleVersionSource": {
+          "type": "string",
+          "description": "Path to a .csproj referencing Swashbuckle.AspNetCore, which the swagger CLI version is read from"
+        },
+        "OutputPath": {
+          "type": "string",
+          "description": "Where the generated spec is written"
+        },
+        "DocumentName": {
+          "type": "string",
+          "description": "Swagger document name to generate"
+        },
+        "Configuration": {
+          "type": "string"
+        },
+        "Commit": {
+          "type": "boolean",
+          "description": "Commit the generated spec, when it differs from the one already in the repository"
+        },
+        "CommitMessage": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Custom commit message. Only relevant if \u003Csee cref=\u0022P:Kavita.ReleaseTools.Stages.GenerateOpenApi.GenerateOpenApiConfiguration.Commit\u0022 /\u003E is true"
+        }
+      },
+      "required": [
+        "CsprojPath",
+        "SwashbuckleVersionSource"
+      ]
+    },
+    "FlushGitChanges": {
+      "description": "A stage that allows any changes to be commit in one go.",
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "Branch": {
+          "type": "string",
+          "description": "Branch to commit the changes to"
+        },
+        "CommitMessage": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "A custom commit message"
+        },
+        "Files": {
+          "$ref": "#/$defs/listOfString",
+          "description": "Which files should be tracked"
+        }
+      },
+      "required": [
+        "Files"
+      ]
+    },
+    "BuildFrontend": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "Path": {
+          "type": "string"
+        },
+        "BuildScript": {
+          "type": "string"
+        },
+        "OutputPath": {
+          "type": "string"
+        },
+        "CopyTo": {
+          "type": "string"
+        },
+        "FullReplace": {
+          "type": "boolean",
+          "description": "When true, deletes the destination directory before copying.\nWhen false (default), merges the output into the destination,\noverwriting files that already exist."
+        },
+        "AllowLegacyPeerDeps": {
+          "type": "boolean",
+          "description": "Should legacy peer dep be enabled when installing dependencies"
+        }
+      },
+      "required": [
+        "Path",
+        "BuildScript",
+        "OutputPath",
+        "CopyTo"
+      ]
+    },
+    "BuildServer": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "SlnPath": {
+          "type": "string"
+        },
+        "CsprojPath": {
+          "type": "string"
+        },
+        "Rids": {
+          "$ref": "#/$defs/listOfString"
+        },
+        "Configuration": {
+          "type": "string"
+        },
+        "SelfContained": {
+          "type": "boolean"
+        },
+        "OutputPath": {
+          "type": "string"
+        },
+        "RenameFiles": {
+          "$ref": "#/$defs/listOfFromTo",
+          "description": "Rename files inside the output path"
+        },
+        "CopyFiles": {
+          "$ref": "#/$defs/listOfFromTo",
+          "description": "Copy files from the git repository in the output paths (relative paths)"
+        },
+        "DeletePaths": {
+          "$ref": "#/$defs/listOfString",
+          "description": "Deletes files in the output path"
+        }
+      },
+      "required": [
+        "SlnPath",
+        "CsprojPath",
+        "Rids"
+      ]
+    },
+    "BuildLibrary": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "CsprojPath": {
+          "type": "string"
+        },
+        "Configuration": {
+          "type": "string"
+        },
+        "OutputDirectory": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "CsprojPath",
+        "Configuration",
+        "OutputDirectory"
+      ]
+    },
+    "PublishToNuGet": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "ApiKey": {
+          "type": "string"
+        },
+        "OutputDirectory": {
+          "type": "string"
+        },
+        "Source": {
+          "type": "string"
+        },
+        "SkipDuplicate": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "OutputDirectory",
+        "Source"
+      ]
+    },
+    "NotifyDiscord": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "WebhookUrl": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Webhook the release notification is posted to. Comes from the \u003Cc\u003EDISCORD_WEBHOOK\u003C/c\u003E\nenvironment variable, so the webhook doesn\u0027t have to be committed."
+        },
+        "Message": {
+          "type": "string"
+        },
+        "Username": {
+          "type": "string"
+        },
+        "Icon": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "Username",
+        "Icon"
+      ]
+    },
+    "Docker": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "Push": {
+          "type": "boolean"
+        },
+        "Load": {
+          "type": "boolean"
+        },
+        "Context": {
+          "type": "string"
+        },
+        "File": {
+          "type": "string"
+        },
+        "Platforms": {
+          "$ref": "#/$defs/listOfString"
+        },
+        "Tags": {
+          "description": "You may use the placeholder {Version} to insert the current version",
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "Stable",
+              "Nightly",
+              "Canary"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/listOfString"
+          }
+        },
+        "Images": {
+          "$ref": "#/$defs/listOfString"
+        },
+        "LogLevel": {
+          "$ref": "#/$defs/logLevel",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Information",
+            "Warning",
+            "Error",
+            "Critical",
+            "None"
+          ]
+        }
+      }
+    },
+    "ParseReleaseTypes": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "BranchRequirements": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "Stable",
+              "Nightly",
+              "Canary"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "StartWiths": {
+                "type": "string"
+              },
+              "DoesNotContain": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "StartWiths",
+              "DoesNotContain"
+            ]
+          }
+        }
+      },
+      "required": [
+        "BranchRequirements"
+      ]
+    }
+  },
+  "required": [
+    "GitData"
+  ],
+  "$defs": {
+    "listOfReleaseType": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Stable",
+          "Nightly",
+          "Canary"
+        ]
+      }
+    },
+    "versionComponent": {
+      "enum": [
+        "Major",
+        "Minor",
+        "Build",
+        "Revision"
+      ]
+    },
+    "listOfString": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "listOfFromTo": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "From": {
+            "type": "string"
+          },
+          "To": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "From",
+          "To"
+        ]
+      }
+    },
+    "logLevel": {
+      "enum": [
+        "Trace",
+        "Debug",
+        "Information",
+        "Warning",
+        "Error",
+        "Critical",
+        "None"
+      ]
+    }
+  }
+}
