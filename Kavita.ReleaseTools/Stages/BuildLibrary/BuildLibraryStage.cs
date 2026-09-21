@@ -28,7 +28,7 @@ public class BuildLibraryStage(ILogger<BuildLibraryStage> logger, IProcessRunner
     {
         await new ProcessCommand.Builder(runner)
             .WithExecutable(Dotnet)
-            .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration, "--no-restore")
+            .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration)
             .Build()
             .RunAsync(ctx, ct);
 
