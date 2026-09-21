@@ -26,7 +26,7 @@ public class GitPushCommand : MutatingCommand
     protected override Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
         var pushOptions = new PushOptions { CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
-            { Username = _authToken}
+            { Username = _authToken, Password = string.Empty } // Password needs to be set as empty. Throws on NULL
         };
 
         var remote = ctx.Git.Repository.Network.Remotes[_remote];
