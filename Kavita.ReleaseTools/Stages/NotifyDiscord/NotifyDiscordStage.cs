@@ -41,6 +41,12 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
             return;
         }
 
+        if (ctx.Configuration.DryRun)
+        {
+            logger.LogInformation("Skipping Discord notify in dry run");
+            return;
+        }
+
         using var client = new DiscordWebhookClient(config.WebhookUrl);
 
         await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon, embeds: [embedBuilder.Build()], text: msg);

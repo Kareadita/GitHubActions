@@ -23,6 +23,12 @@ public class CreateGitHubReleaseStage(ILogger<CreateGitHubReleaseStage> logger) 
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, CreateGitHubReleaseConfiguration config, CancellationToken ct)
     {
+        if (ctx.Configuration.DryRun)
+        {
+            logger.LogInformation("Skipping GitHub Release in dry run");
+            return;
+        }
+
         var client = new GitHubClient(new ProductHeaderValue("Kavita.ReleaseTools"))
         { Credentials = new Credentials(config.AuthToken) };
 
