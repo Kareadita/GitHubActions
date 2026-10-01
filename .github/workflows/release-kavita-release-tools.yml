@@ -1,3 +1,5 @@
+name: Publish Kavita.ReleaseTools to NuGet
+
 on:
   pull_request:
     types: [closed]
