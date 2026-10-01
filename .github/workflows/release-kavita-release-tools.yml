@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches: ["main"]
-    paths: ["Kavita.ReleaseTools/**"]
+    paths: ["Kavita.ReleaseTools/**", ".github/workflows/release-kavita-release-tools.yml"]
 
 permissions:
   id-token: write
