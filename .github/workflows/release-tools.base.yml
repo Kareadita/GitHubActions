@@ -14,10 +14,21 @@ on:
         required: false
         type: string
         default: "" # empty = latest
+      dockerhub-username:
+        required: false
+        type: string
+        default: ""
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: false
+      NUGET_USER:
+        required: false
 
 jobs:
   run-tool:
     runs-on: ubuntu-latest
+    env:
+      NUGET_USER: ${{ secrets.NUGET_USER }}
 
     steps:
       - name: Checkout Code
@@ -41,6 +52,20 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: ${{ inputs.dockerhub-username != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ inputs.dockerhub-username }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to NuGet
+        if: env.NUGET_USER != ''
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ env.NUGET_USER }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,4 +92,4 @@ jobs:
           PR_NUMBER: ${{ steps.findPr.outputs.number }}
           PR_DESCRIPTION: ${{ steps.findPr.outputs.body }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}

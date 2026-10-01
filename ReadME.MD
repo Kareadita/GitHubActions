@@ -5,20 +5,20 @@ This repository contains shared code and actions used to build and release diffe
 
 ## ReleaseTools
 
-In house «GitHub actions» tailored towards our stack. Can be used to release C#/Angular applications, or publish C# libraries.
+In house «GitHub Actions» tailored towards our stack. Can be used to release C#/Angular applications, or publish C# libraries.
 
 Consumer can use the base [action](./.github/workflows/release-tools.base.yml) to build upon. The action should run only on `pull_request`.
 
-A useage can be found for the tool itself, [here](./.github/workflows/release-kavita-release-tools.yml)!
+A usage can be found for the tool itself, [here](./.github/workflows/release-kavita-release-tools.yml)!
 
-Alike GitHub actions, the tool runs stage by stage. Each stage has it's own configuration options on top of `Disabled` and `ReleaseTypes`.
+like GitHub Actions, the tool runs stage by stage. Each stage has its own configuration options on top of `Disabled` and `ReleaseTypes`.
 Use `Disabled` to disable a stage while keeping the config, and use `ReleaseTypes` to restrict usage to specific releases. The types are: `Stable`, `Nightly`, and `Canary`.
 
 ### Stages
 
 **ParseReleaseTypesStage**
 
-Uses the branch being merged (e.g. `bugfix/scanner`) to decide which release types are active. By default the following rules are active
+Uses the branch being merged (e.g. `bugfix/scanner`) to decide which release types are active. By default, the following rules are active
 
 `release/` => `Stable`
 
@@ -48,7 +48,7 @@ Builds the frontend (runs a npm script) and optionally copies the output elsewhe
 
 **BuildServerStage**
 
-Builds a C# Web application for a set of Runtime Identifiers. With options to copy, delete extra things afterwarss
+Builds a C# Web application for a set of Runtime Identifiers. With options to copy, delete extra things afterwards
 
 **BuildLibraryStage**
 
@@ -64,8 +64,6 @@ Creates the docker container. While any Dockerfile can be used, it's expected th
 and instead uses the tar artficats from the `BuildServerStage`. 
 
 Tags & Images create a matrix for which ones to use. Use {Version} for the {Version} currently being published
-
-
 
 **NotifyDiscordStage**
 

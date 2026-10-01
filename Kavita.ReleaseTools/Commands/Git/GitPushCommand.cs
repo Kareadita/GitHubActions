@@ -26,7 +26,7 @@ public class GitPushCommand : MutatingCommand
     protected override Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
         var pushOptions = new PushOptions { CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
-            { Username = _authToken}
+            { Username = "x-auth-token", Password = _authToken }
         };
 
         var remote = ctx.Git.Repository.Network.Remotes[_remote];
