@@ -10,6 +10,7 @@ using Kavita.ReleaseTools.Stages.CreateGitHubRelease;
 using Kavita.ReleaseTools.Stages.Docker;
 using Kavita.ReleaseTools.Stages.FlushGitChanges;
 using Kavita.ReleaseTools.Stages.GenerateOpenApi;
+using Kavita.ReleaseTools.Stages.GitHubComments;
 using Kavita.ReleaseTools.Stages.NotifyDiscord;
 using Kavita.ReleaseTools.Stages.ParseReleaseTypes;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
@@ -51,6 +52,7 @@ public class ReleaseConfiguration
     public DockerConfiguration? Docker { get; init; }
     public RunScriptConfiguration? RunScript { get; init; }
     public CreateGitHubReleaseConfiguration? CreateGitHubRelease { get; init; }
+    public GitHubCommentsConfiguration? GitHubComments { get; init; }
 
     public ParseReleaseTypesConfiguration? ParseReleaseTypes { get; init; } = new()
     {
