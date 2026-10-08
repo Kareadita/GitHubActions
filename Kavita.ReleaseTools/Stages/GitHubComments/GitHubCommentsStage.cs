@@ -41,7 +41,7 @@ public partial class GitHubCommentsStage(ILogger<GitHubCommentsStage> logger) : 
         }
 
         var owner = config.Owner;
-        var repo = config.Repository;
+        var repo = config.RepositoryName;
         var prNumber = config.PrNumber;
         var nightlyVersion = ctx.ReleaseVersion;
         var stableVersion = VersionBumpStage.BumpVersion(new VersionBumpConfiguration
