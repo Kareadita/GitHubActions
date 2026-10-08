@@ -32,7 +32,7 @@ public class NotifyDiscordConfiguration: GitHubPrConfiguration, IStageConfigurat
     /// Username
     /// </summary>
     [Required(ErrorMessage = "Username is required")]
-    public required string Username { get; init; }
+    public required string Username { get; init; } = "Notification (Github Actions)";
 
     /// <summary>
     /// Icon
