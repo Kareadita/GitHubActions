@@ -23,6 +23,8 @@ on:
         required: false
       NUGET_USER:
         required: false
+      DISCORD_WEBHOOK:
+        required: false
 
 jobs:
   run-tool:
