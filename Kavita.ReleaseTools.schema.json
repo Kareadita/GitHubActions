@@ -524,6 +524,58 @@
         "TitleTemplate"
       ]
     },
+    "GitHubComments": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "Repository": {
+          "type": "string"
+        },
+        "PrNumber": {
+          "type": "string"
+        },
+        "PrTitle": {
+          "type": "string"
+        },
+        "PrDescription": {
+          "type": "string"
+        },
+        "Owner": {
+          "type": "string",
+          "readOnly": true
+        },
+        "RepositoryName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "Disabled": {
+          "type": "boolean"
+        },
+        "ReleaseTypes": {
+          "$ref": "#/$defs/listOfReleaseType"
+        },
+        "ReleaseComponent": {
+          "$ref": "#/$defs/versionComponent",
+          "enum": [
+            "Major",
+            "Minor",
+            "Build",
+            "Revision"
+          ]
+        },
+        "ResetSmallerComponents": {
+          "type": "boolean"
+        },
+        "AuthToken": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ReleaseComponent"
+      ]
+    },
     "ParseReleaseTypes": {
       "type": [
         "null",
