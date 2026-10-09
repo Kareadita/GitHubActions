@@ -90,6 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_HEAD_REF: ${{ github.head_ref }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           PR_TITLE: ${{ steps.findPr.outputs.title }}
           PR_NUMBER: ${{ steps.findPr.outputs.number }}
           PR_DESCRIPTION: ${{ steps.findPr.outputs.body }}
