@@ -21,7 +21,9 @@ public class FlushGitChangesConfiguration: IStageConfiguration
     /// <summary>
     /// Branch to commit the changes to
     /// </summary>
-    public string Branch { get; init; } = "main";
+    [Required(ErrorMessage = "GITHUB_TARGET_BRANCH must be set")]
+    [FromEnvironment("GITHUB_TARGET_BRANCH")]
+    public required string Branch { get; init; }
 
     /// <summary>
     /// A custom commit message
