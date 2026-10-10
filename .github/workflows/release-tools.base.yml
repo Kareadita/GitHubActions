@@ -56,13 +56,6 @@ jobs:
           gh api "repos/${{ github.repository }}/pulls/${{ steps.findPr.outputs.number }}" \
             --jq '"head_ref=\(.head.ref)\nbase_ref=\(.base.ref)"' >> "$GITHUB_OUTPUT"
 
-      - name: Debug env
-        run: |
-          echo "process sees: [$GITHUB_HEAD_REF]"
-          echo "event: $GITHUB_EVENT_NAME"
-        env:
-          GITHUB_HEAD_REF: ${{ steps.prRefs.outputs.head_ref }}
-
       - name: Setup .NET
         if: steps.findPr.outputs.number != ''
         uses: actions/setup-dotnet@v6
@@ -111,10 +104,10 @@ jobs:
 
       - name: Run Kavita.ReleaseTools
         if: steps.findPr.outputs.number != ''
-        run: kavita-releasetools run --config ${{ inputs.config-path }}
+        run: GITHUB_HEAD_REF="$HEAD_REF" kavita-releasetools run --config ${{ inputs.config-path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_HEAD_REF: ${{ steps.prRefs.outputs.head_ref }}
+          HEAD_REF: ${{ steps.prRefs.outputs.head_ref }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TARGET_BRANCH: ${{ steps.prRefs.outputs.base_ref }}
           PR_TITLE: ${{ steps.findPr.outputs.title }}
