@@ -1,8 +1,7 @@
 name: Publish Kavita.ReleaseTools to NuGet
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: ["main"]
     paths: ["Kavita.ReleaseTools/**", ".github/workflows/release-kavita-release-tools.yml"]
 
@@ -13,7 +12,6 @@ permissions:
 
 jobs:
   run-release-tool:
-    if: github.event.pull_request.merged == true
     uses: "./.github/workflows/release-tools.base.yml"
     secrets: inherit
     with:
