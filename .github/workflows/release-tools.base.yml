@@ -47,6 +47,15 @@ jobs:
           state: all
           github-token: '${{ secrets.GITHUB_TOKEN }}'
 
+      - name: Resolve PR refs
+        id: prRefs
+        if: steps.findPr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ steps.findPr.outputs.number }}" \
+            --jq '"head_ref=\(.head.ref)\nbase_ref=\(.base.ref)"' >> "$GITHUB_OUTPUT"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -94,9 +103,9 @@ jobs:
         run: kavita-releasetools run --config ${{ inputs.config-path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_HEAD_REF: ${{ steps.prRefs.outputs.head_ref }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          GITHUB_TARGET_BRANCH: ${{ steps.prRefs.outputs.base_ref }}
           PR_TITLE: ${{ steps.findPr.outputs.title }}
           PR_NUMBER: ${{ steps.findPr.outputs.number }}
           PR_DESCRIPTION: ${{ steps.findPr.outputs.body }}
