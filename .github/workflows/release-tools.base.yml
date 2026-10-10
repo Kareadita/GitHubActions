@@ -57,11 +57,13 @@ jobs:
             --jq '"head_ref=\(.head.ref)\nbase_ref=\(.base.ref)"' >> "$GITHUB_OUTPUT"
 
       - name: Setup .NET
+        if: steps.findPr.outputs.number != ''
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '${{ inputs.dotnet-version }}'
 
       - name: Login to GHCR
+        if: steps.findPr.outputs.number != ''
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -69,29 +71,30 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to Docker Hub
-        if: ${{ inputs.dockerhub-username != '' }}
+        if: steps.findPr.outputs.number != '' && inputs.dockerhub-username != ''
         uses: docker/login-action@v3
         with:
           username: ${{ inputs.dockerhub-username }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to NuGet
-        if: env.NUGET_USER != ''
+        if: steps.findPr.outputs.number != '' && env.NUGET_USER != ''
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ env.NUGET_USER }}
 
       - name: Set up QEMU
-        if: inputs.uses-docker == true
+        if: steps.findPr.outputs.number != '' && inputs.uses-docker == true
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        if: inputs.uses-docker == true
+        if: steps.findPr.outputs.number != '' && inputs.uses-docker == true
         id: buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Install Kavita.ReleaseTools
+        if: steps.findPr.outputs.number != ''
         run: |
           if [ -z "${{ inputs.tool-version }}" ]; then
             dotnet tool install --global Kavita.ReleaseTools
@@ -100,6 +103,7 @@ jobs:
           fi
 
       - name: Run Kavita.ReleaseTools
+        if: steps.findPr.outputs.number != ''
         run: kavita-releasetools run --config ${{ inputs.config-path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
