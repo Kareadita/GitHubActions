@@ -125,11 +125,20 @@ public static class RunCommand
             Configuration = configuration
         };
 
-        return
-        [
-            .. ConfigurationReader.Validate(configuration),
-            .. stages.SelectMany(stage => stage.Validate(context))
-        ];
+        try
+        {
+            return
+            [
+                .. ConfigurationReader.Validate(configuration),
+                .. stages.SelectMany(stage => stage.Validate(context))
+            ];
+        } catch (Exception exception)
+        {
+            FailureReport.Render(nameof(ConfigurationReader), exception);
+            Environment.Exit(1);
+        }
+
+        return [];
     }
 
     private static async Task<int> ExecuteStagesAsync(IReadOnlyList<IStage> stages, ExecutionContext context,

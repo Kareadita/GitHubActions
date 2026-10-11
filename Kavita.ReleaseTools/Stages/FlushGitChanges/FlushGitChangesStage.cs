@@ -19,7 +19,7 @@ public partial class FlushGitChangesStage(ILogger<FlushGitChangesStage> logger):
 
     protected override IReadOnlyList<ValidationIssue> Validate(ValidationContext ctx, FlushGitChangesConfiguration config)
     {
-        if (!BranchRegex.IsMatch(config.Branch))
+        if (string.IsNullOrEmpty(config.Branch) || !BranchRegex.IsMatch(config.Branch))
         {
             return [Issue($"Invalid branch name: {config.Branch}")];
         }
