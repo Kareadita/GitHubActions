@@ -21,7 +21,7 @@ namespace Kavita.ReleaseTools.Commands.ExternalCommands;
 /// CLI resolves the application's dependencies from the assembly's own directory, so running from
 /// elsewhere is not a problem.
 /// </remarks>
-public class GenerateOpenApiDocCommand(IProcessRunner runner, string swashbuckleVersion, string assemblyPath, string outputPath, string documentName): RunnableCommand(true)
+public class GenerateOpenApiDocCommand(IProcessRunner runner, string swashbuckleVersion, string assemblyPath, string outputPath, string documentName, LogLevel logLevel): RunnableCommand(true)
 {
     private const string ToolPackageId = "Swashbuckle.AspNetCore.Cli";
     private const string Dotnet = "dotnet";
@@ -47,7 +47,7 @@ public class GenerateOpenApiDocCommand(IProcessRunner runner, string swashbuckle
 
     private async Task RunAsync(string workingDirectory, IReadOnlyList<string> arguments, CancellationToken ct)
     {
-        var result = await runner.RunAsync(Dotnet, arguments, workingDirectory, LogLevel.Trace, ct);
+        var result = await runner.RunAsync(Dotnet, arguments, workingDirectory, logLevel, ct);
         result.ThrowIfFailed();
     }
 }

@@ -47,6 +47,7 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
     protected override async Task ExecuteAsync(ExecutionContext ctx, GenerateOpenApiConfiguration config, CancellationToken ct)
     {
         await new ProcessCommand.Builder(processRunner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
             .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration)
             .Build()
@@ -56,7 +57,7 @@ public partial class GenerateOpenApiStage(ILogger<GenerateOpenApiStage> logger, 
         var swashbuckleVersion = ResolveSwashbuckleVersion(ctx, config);
 
         var generateCommand = new GenerateOpenApiDocCommand(processRunner, swashbuckleVersion, assemblyPath,
-            config.OutputPath, config.DocumentName);
+            config.OutputPath, config.DocumentName, config.LogLevel);
         await generateCommand.RunAsync(ctx, ct);
 
         if (!ctx.FileSystem.File.Exists(config.OutputPath))

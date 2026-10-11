@@ -27,12 +27,14 @@ public class BuildLibraryStage(ILogger<BuildLibraryStage> logger, IProcessRunner
     protected override async Task ExecuteAsync(ExecutionContext ctx, BuildLibraryConfiguration config, CancellationToken ct)
     {
         await new ProcessCommand.Builder(runner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
             .WithArguments("build", config.CsprojPath, "--configuration", config.Configuration)
             .Build()
             .RunAsync(ctx, ct);
 
         await new ProcessCommand.Builder(runner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
             .WithArguments("pack", config.CsprojPath, "--configuration", config.Configuration, "--output", config.OutputDirectory)
             .Build()

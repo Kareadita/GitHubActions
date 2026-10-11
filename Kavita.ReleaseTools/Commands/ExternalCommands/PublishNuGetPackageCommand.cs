@@ -2,12 +2,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Stages.PublishToNuGet;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
+using ILogger = Serilog.ILogger;
 
 namespace Kavita.ReleaseTools.Commands.ExternalCommands;
 
-public class PublishNuGetPackageCommand(IProcessRunner runner, PublishToNuGetConfiguration config) : MutatingCommand(false)
+public class PublishNuGetPackageCommand(IProcessRunner runner, PublishToNuGetConfiguration config, LogLevel logLevel) : MutatingCommand(false)
 {
     private const string Dotnet = "dotnet";
 
@@ -16,6 +18,7 @@ public class PublishNuGetPackageCommand(IProcessRunner runner, PublishToNuGetCon
     protected override Task ExecuteAsync(ExecutionContext ctx, CancellationToken ct)
     {
         return new ProcessCommand.Builder(runner)
+            .WithLogLevel(logLevel)
             .WithExecutable(Dotnet)
             .WithArguments("nuget", "push", $"{config.OutputDirectory}/*.nupkg", "--api-key", config.ApiKey, "--source", config.Source)
             .AppendArgumentIf(config.SkipDuplicate, "--skip-duplicate")
