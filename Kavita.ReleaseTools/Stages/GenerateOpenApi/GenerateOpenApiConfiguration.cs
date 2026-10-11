@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Kavita.ReleaseTools.Stages.GenerateOpenApi;
 
@@ -15,6 +16,13 @@ public class GenerateOpenApiConfiguration: IStageConfiguration
 
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
+
+    /// <summary>
+    /// The log level to run commands at
+    /// </summary>
+    [Required]
+    [EnumDataType(typeof(LogLevel))]
+    public LogLevel LogLevel { get; init; } = LogLevel.Debug;
 
     /// <summary>
     /// Path to the project that produces the assembly the spec is generated from

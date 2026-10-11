@@ -25,6 +25,6 @@ public class PublishToNuGetStage(ILogger<PublishToNuGetStage> logger, IProcessRu
 
     protected override async Task ExecuteAsync(ExecutionContext ctx, PublishToNuGetConfiguration config, CancellationToken ct)
     {
-        await new PublishNuGetPackageCommand(runner, config).RunAsync(ctx, ct);
+        await new PublishNuGetPackageCommand(runner, config, config.LogLevel).RunAsync(ctx, ct);
     }
 }

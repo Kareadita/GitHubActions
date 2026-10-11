@@ -35,5 +35,5 @@ public class RunScriptConfiguration: IStageConfiguration
     /// Override at which log level the output is logged
     /// </summary>
     [EnumDataType(typeof(LogLevel))]
-    public LogLevel LogLevel { get; init; } = LogLevel.Trace;
+    public LogLevel LogLevel { get; init; } = LogLevel.Debug;
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Configuration;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Kavita.ReleaseTools.Stages.PublishToNuGet;
 
@@ -13,6 +14,13 @@ public class PublishToNuGetConfiguration: IStageConfiguration
 
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
+
+    /// <summary>
+    /// The log level to run commands at
+    /// </summary>
+    [Required]
+    [EnumDataType(typeof(LogLevel))]
+    public LogLevel LogLevel { get; init; } = LogLevel.Debug;
 
     /// <summary>
     /// Your NuGet ApiKey. Do not store this in Git. Prefer the NUGET_API_KEY env var

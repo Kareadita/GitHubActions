@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Kavita.ReleaseTools.Api;
 using Kavita.ReleaseTools.Models;
+using Microsoft.Extensions.Logging;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace Kavita.ReleaseTools.Stages.BuildServer;
@@ -14,6 +15,13 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
 
     /// <inheritdoc/>
     public List<ReleaseType> ReleaseTypes { get; init; } = [];
+
+    /// <summary>
+    /// The log level to run commands at
+    /// </summary>
+    [Required]
+    [EnumDataType(typeof(LogLevel))]
+    public LogLevel LogLevel { get; init; } = LogLevel.Debug;
 
     /// <summary>
     /// Your application name (used for tar files)

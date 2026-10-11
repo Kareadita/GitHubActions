@@ -41,7 +41,7 @@ public class ProcessCommand: RunnableCommand
         private string _executable = string.Empty;
         private List<string> _arguments = [];
         private string? _workingDirectory;
-        private LogLevel _logLevel = LogLevel.Trace;
+        private LogLevel _logLevel = LogLevel.Debug;
 
         public Builder WithExecutable(string executable)
         {

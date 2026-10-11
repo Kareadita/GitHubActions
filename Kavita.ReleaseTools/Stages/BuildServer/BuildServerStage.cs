@@ -62,12 +62,14 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         var outputPath = ctx.FileSystem.Path.Combine(buildPath, rid, config.AppName);
 
         await new ProcessCommand.Builder(runner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
             .WithArguments("msbuild", "-restore", config.SlnPath, $"-p:Configuration={config.Configuration}", "-p:Platform=\"Any CPU\"", $"-p:RuntimeIdentifiers={rid}")
             .Build()
             .RunAsync(ctx, ct);
 
         await new ProcessCommand.Builder(runner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
             .WithArguments("publish", config.CsprojPath, "-c", config.Configuration, "--no-restore", "--runtime", rid, "-o", outputPath)
             .AppendArgumentIf(config.SelfContained, "--self-contained")
@@ -134,6 +136,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         var archiveName = $"{config.AppName.ToLowerInvariant()}-{rid}.tar.gz";
 
         await new ProcessCommand.Builder(runner)
+            .WithLogLevel(config.LogLevel)
             .WithExecutable(Tar)
             .WithArguments("-czvf", $"{config.OutputPath}{archiveName}", "-C", parent, config.AppName)
             .Build()
