@@ -29,6 +29,7 @@ using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools;
@@ -43,24 +44,33 @@ public static class RunCommand
             Required = true
         };
         configOption.Aliases.Add("-c");
+        var logLevelOption = new Option<LogEventLevel>("--log-level")
+        {
+            Description = "Global log level",
+            DefaultValueFactory = _ => LogEventLevel.Debug
+        };
+        logLevelOption.Aliases.Add("-l");
 
         var command = new Command("run", "Runs the full release pipeline")
         {
-            configOption
+            configOption,
+            logLevelOption,
         };
 
         command.SetAction(async (parseResult, ct) =>
         {
+            var logLevel = parseResult.GetValue(logLevelOption)!;
             var configFile = parseResult.GetValue(configOption)!;
-            return await ExecuteAsync(configFile, ct);
+
+            return await ExecuteAsync(configFile, logLevel, ct);
         });
 
         return command;
     }
 
-    private static async Task<int> ExecuteAsync(FileInfo configFile, CancellationToken ct)
+    private static async Task<int> ExecuteAsync(FileInfo configFile, LogEventLevel logLevel, CancellationToken ct)
     {
-        Log.Logger = CreateLogger();
+        Log.Logger = CreateLogger(logLevel);
 
         await using var provider = BuildServiceProvider();
         var fileSystem = new FileSystem();
@@ -148,8 +158,8 @@ public static class RunCommand
         GitAuthorEmail = "github-actions[bot]@users.noreply.github.com",
     };
 
-    private static Serilog.ILogger CreateLogger() => new LoggerConfiguration()
-        .MinimumLevel.Debug()
+    private static Serilog.ILogger CreateLogger(LogEventLevel logLevel) => new LoggerConfiguration()
+        .MinimumLevel.Is(logLevel)
         .WriteTo.Console(
             outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext} {Message:lj}{NewLine}{Exception}")
         .CreateLogger();
