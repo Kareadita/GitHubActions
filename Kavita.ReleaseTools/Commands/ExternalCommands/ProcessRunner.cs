@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,14 @@ namespace Kavita.ReleaseTools.Commands.ExternalCommands;
 /// </remarks>
 public class ProcessRunner: IProcessRunner
 {
+
+    private static readonly string[] PathExtensions =
+        Environment.GetEnvironmentVariable("PATHEXT")?.Split(';', StringSplitOptions.RemoveEmptyEntries)
+        ?? [".EXE", ".CMD", ".BAT"];
+    private static readonly string[] PathDirectories =
+        (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
+        .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
+    
     public async Task<ProcessResult> RunAsync(string executable, IReadOnlyList<string> arguments,
         string? workingDirectory, LogLevel logLevel, CancellationToken ct)
     {
@@ -43,7 +52,7 @@ public class ProcessRunner: IProcessRunner
         var standardError = new StringBuilder();
 
         using var process = new Process();
-        process.StartInfo.FileName = executable;
+        process.StartInfo.FileName = ResolveExecutable(executable);
         process.StartInfo.WorkingDirectory = workingDirectory ?? string.Empty;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
@@ -99,5 +108,24 @@ public class ProcessRunner: IProcessRunner
             StandardOutput = standardOutput.ToString(),
             StandardError = standardError.ToString(),
         };
+    }
+    
+    private static string ResolveExecutable(string executable)
+    {
+        if (!OperatingSystem.IsWindows() || Path.HasExtension(executable)) return executable;
+
+        foreach (var dir in PathDirectories)
+        {
+            foreach (var ext in PathExtensions)
+            {
+                var candidate = Path.Combine(dir, executable + ext);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return executable;
     }
 }
