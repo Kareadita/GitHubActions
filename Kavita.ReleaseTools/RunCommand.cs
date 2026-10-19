@@ -181,6 +181,7 @@ public static class RunCommand
             builder.ClearProviders();
             builder.AddSerilog(Log.Logger);
         });
+        services.AddHttpClient();
 
         services.AddSingleton<IProcessRunner, ProcessRunner>();
 
