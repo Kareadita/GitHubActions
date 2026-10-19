@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
@@ -12,7 +13,7 @@ using ExecutionContext = Kavita.ReleaseTools.Models.ExecutionContext;
 
 namespace Kavita.ReleaseTools.Stages.BuildServer;
 
-public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner runner) : ConfiguredStage<BuildServerConfiguration>(logger)
+public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner runner, HttpClient httpClient) : ConfiguredStage<BuildServerConfiguration>(logger)
 {
     private const string Dotnet = "dotnet";
     private const string Tar = "tar";
@@ -125,6 +126,19 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             {
                 logger.LogWarning("Cannot find configured file at path {Path} to rename", srcPath);
             }
+        }
+
+        foreach (var externalFile in config.IncludeExternalFiles.GetValueOrDefault(rid, []))
+        {
+            var destPath = ctx.FileSystem.Path.Combine(outputPath, externalFile.To);
+
+            logger.LogDebug("Including external file {DestPath} from {Url}", destPath, externalFile.From);
+
+            var response = await httpClient.GetAsync(externalFile.From, ct);
+            response.EnsureSuccessStatusCode();
+
+            var dest = ctx.FileSystem.File.OpenWrite(destPath);
+            await response.Content.CopyToAsync(dest, ct);
         }
 
         logger.LogTrace("Compressing {Path}", outputPath);

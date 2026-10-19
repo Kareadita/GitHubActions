@@ -49,6 +49,11 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
     public required Dictionary<ReleaseType, List<string>> Rids { get; init; } = [];
 
     /// <summary>
+    /// Map RIDS to external files (https)
+    /// </summary>
+    public required Dictionary<string, List<FromTo>> IncludeExternalFiles { get; init; } = [];
+
+    /// <summary>
     /// Which configuration to build against; Defaults to Release
     /// </summary>
     public string Configuration { get; init; } = "Release";
