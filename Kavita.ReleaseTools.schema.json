@@ -255,6 +255,31 @@
           "$ref": "#/$defs/dictionaryOfListOfStringReleaseTypeAndDictionaryOfListOfString",
           "description": "For which Runtime Identifiers should be packaged"
         },
+        "IncludeExternalFiles": {
+          "description": "Map RIDS to external files (https)",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "From": {
+                  "type": "string"
+                },
+                "To": {
+                  "type": "string"
+                },
+                "Executable": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "From",
+                "To"
+              ]
+            }
+          }
+        },
         "Configuration": {
           "type": "string",
           "description": "Which configuration to build against; Defaults to Release"
@@ -283,7 +308,8 @@
       "required": [
         "SlnPath",
         "CsprojPath",
-        "Rids"
+        "Rids",
+        "IncludeExternalFiles"
       ]
     },
     "BuildLibrary": {
