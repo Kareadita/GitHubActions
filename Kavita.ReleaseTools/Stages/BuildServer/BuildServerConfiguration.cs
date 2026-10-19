@@ -51,7 +51,7 @@ public class BuildServerConfiguration: IStageConfiguration, IValidatableObject
     /// <summary>
     /// Map RIDS to external files (https)
     /// </summary>
-    public required Dictionary<string, List<FromTo>> IncludeExternalFiles { get; init; } = [];
+    public required Dictionary<string, List<ExternalFile>> IncludeExternalFiles { get; init; } = [];
 
     /// <summary>
     /// Which configuration to build against; Defaults to Release
@@ -119,4 +119,9 @@ public class FromTo
     public required string From { get; init; }
     [Required]
     public required string To { get; init; }
+}
+
+public class ExternalFile : FromTo
+{
+    public bool Executable { get; init; } = true;
 }

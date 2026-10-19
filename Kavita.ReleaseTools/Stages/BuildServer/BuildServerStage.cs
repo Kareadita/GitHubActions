@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -139,6 +140,14 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
             var dest = ctx.FileSystem.File.OpenWrite(destPath);
             await response.Content.CopyToAsync(dest, ct);
+
+            if (!OperatingSystem.IsWindows() && externalFile.Executable)
+            {
+                var mode = ctx.FileSystem.File.GetUnixFileMode(destPath)
+                    | UnixFileMode.GroupExecute | UnixFileMode.UserExecute;
+
+                ctx.FileSystem.File.SetUnixFileMode(destPath, mode);
+            }
         }
 
         logger.LogTrace("Compressing {Path}", outputPath);
