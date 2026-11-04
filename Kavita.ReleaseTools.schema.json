@@ -271,6 +271,9 @@
                 },
                 "Executable": {
                   "type": "boolean"
+                },
+                "Sha256": {
+                  "type": "string"
                 }
               },
               "required": [
