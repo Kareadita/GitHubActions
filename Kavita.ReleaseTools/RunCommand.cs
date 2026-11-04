@@ -169,6 +169,7 @@ public static class RunCommand
 
     private static Serilog.ILogger CreateLogger(LogEventLevel logLevel) => new LoggerConfiguration()
         .MinimumLevel.Is(logLevel)
+        .MinimumLevel.Override("Microsoft.Extensions.Http.DefaultHttpClientFactory", LogEventLevel.Information)
         .WriteTo.Console(
             outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext} {Message:lj}{NewLine}{Exception}")
         .CreateLogger();
