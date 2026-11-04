@@ -124,4 +124,5 @@ public class FromTo
 public class ExternalFile : FromTo
 {
     public bool Executable { get; init; } = true;
+    public string Sha256 { get; init; } = string.Empty;
 }

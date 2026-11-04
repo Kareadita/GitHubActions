@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Kavita.ReleaseTools.Api;
@@ -141,6 +142,22 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             var dest = ctx.FileSystem.File.OpenWrite(destPath);
             await response.Content.CopyToAsync(dest, ct);
 
+            dest.Close();
+
+            if (!string.IsNullOrEmpty(externalFile.Sha256))
+            {
+                var downloadedSha256 = await ComputeSha256Async(ctx, destPath, ct);
+
+                if (!downloadedSha256.Equals(externalFile.Sha256, StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.LogError("The downloaded file's sha is not what was expected! Wanted: {Wanted}, got: {Actual}",
+                        externalFile.Sha256, downloadedSha256);
+                    throw new ExecutionException("External file has an incorrect SHA, stopping build");
+                }
+
+                logger.LogInformation("{Path} passed SHA256 check {Sha}", destPath, downloadedSha256);
+            }
+
             if (!OperatingSystem.IsWindows() && externalFile.Executable)
             {
                 var mode = ctx.FileSystem.File.GetUnixFileMode(destPath)
@@ -169,5 +186,14 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         logger.LogInformation("Completed build process for {Rid} in {TotalSeconds}s", rid, sw.Elapsed.TotalSeconds);
 
 
+    }
+
+    private async Task<string> ComputeSha256Async(ExecutionContext ctx, string path, CancellationToken cancellationToken)
+    {
+        await using var stream = ctx.FileSystem.File.OpenRead(path);
+
+        var hash = await SHA256.HashDataAsync(stream, cancellationToken);
+
+        return Convert.ToHexString(hash);
     }
 }
