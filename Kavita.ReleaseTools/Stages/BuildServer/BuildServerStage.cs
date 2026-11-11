@@ -150,7 +150,9 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             var mode = OperatingSystem.IsWindows() ? DefaultFileMode : fs.File.GetUnixFileMode(path);
 
             if (executables.Contains(relative))
+            {
                 mode |= ExecBits;
+            }
 
             await using var data = fs.File.OpenRead(path);
             await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.RegularFile, entryName)
