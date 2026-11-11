@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Formats.Tar;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -18,7 +20,21 @@ namespace Kavita.ReleaseTools.Stages.BuildServer;
 public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner runner, HttpClient httpClient) : ConfiguredStage<BuildServerConfiguration>(logger)
 {
     private const string Dotnet = "dotnet";
-    private const string Tar = "tar";
+
+    // 0644
+    private const UnixFileMode DefaultFileMode =
+        UnixFileMode.UserRead | UnixFileMode.UserWrite |
+        UnixFileMode.GroupRead | UnixFileMode.OtherRead;
+
+    // 0755
+    private const UnixFileMode DefaultDirMode =
+        UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+        UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+        UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
+
+    private const UnixFileMode ExecBits =
+        UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
+
     public override string Name => nameof(BuildServerStage);
 
     protected override BuildServerConfiguration? GetConfiguration(ReleaseConfiguration configuration)
@@ -64,6 +80,23 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
         var outputPath = ctx.FileSystem.Path.Combine(buildPath, rid, config.AppName);
 
+        await Build(ctx, config, rid, outputPath, ct);
+
+        DeleteFiles(ctx, config, outputPath);
+        CopyFiles(ctx, config, outputPath);
+        RenameFiles(ctx, config, outputPath);
+
+        var executables = await IncludeExternalFiles(ctx, config, rid, outputPath, ct);
+
+        executables.Add(config.AppName);
+        await PackageBuild(ctx, config, rid, outputPath, executables, ct);
+
+        sw.Stop();
+        logger.LogInformation("Completed build process for {Rid} in {TotalSeconds}s", rid, sw.Elapsed.TotalSeconds);
+    }
+
+    private async Task Build(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, CancellationToken ct)
+    {
         await new ProcessCommand.Builder(runner)
             .WithLogLevel(config.LogLevel)
             .WithExecutable(Dotnet)
@@ -78,7 +111,60 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             .AppendArgumentIf(config.SelfContained, "--self-contained")
             .Build()
             .RunAsync(ctx, ct);
+    }
 
+    private async Task PackageBuild(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, IReadOnlySet<string> executables, CancellationToken ct)
+    {
+        var fs = ctx.FileSystem;
+        logger.LogTrace("Compressing {Path}", outputPath);
+
+        if (!fs.Directory.Exists(config.OutputPath))
+            fs.Directory.CreateDirectory(config.OutputPath);
+
+        var archivePath = $"{config.OutputPath}{config.AppName.ToLowerInvariant()}-{rid}.tar.gz";
+
+        await using var fileStream = fs.File.Create(archivePath);
+        await using var gzip = new GZipStream(fileStream, CompressionLevel.Optimal);
+        await using var tar = new TarWriter(gzip, TarEntryFormat.Pax);
+
+        await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, $"{config.AppName}/")
+        {
+            Mode = DefaultDirMode,
+        }, ct);
+
+        foreach (var path in fs.Directory.EnumerateFileSystemEntries(outputPath, "*", SearchOption.AllDirectories))
+        {
+            var relative = NormalizeRelative(fs.Path.GetRelativePath(outputPath, path));
+            var entryName = $"{config.AppName}/{relative}";
+
+            if (fs.Directory.Exists(path))
+            {
+                await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, entryName + "/")
+                {
+                    Mode = DefaultDirMode,
+                }, ct);
+                continue;
+            }
+
+            // Keep file mode when possible
+            var mode = OperatingSystem.IsWindows() ? DefaultFileMode : fs.File.GetUnixFileMode(path);
+
+            if (executables.Contains(relative))
+            {
+                mode |= ExecBits;
+            }
+
+            await using var data = fs.File.OpenRead(path);
+            await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.RegularFile, entryName)
+            {
+                Mode = mode,
+                DataStream = data,
+            }, ct);
+        }
+    }
+
+    private void DeleteFiles(ExecutionContext ctx, BuildServerConfiguration config, string outputPath)
+    {
         foreach (var path in config.DeletePaths)
         {
             var completePath = ctx.FileSystem.Path.Combine(outputPath, path);
@@ -93,7 +179,10 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
                 ctx.FileSystem.File.Delete(completePath);
             }
         }
+    }
 
+    private void CopyFiles(ExecutionContext ctx, BuildServerConfiguration config, string outputPath)
+    {
         foreach (var fromTo in config.CopyFiles)
         {
             var destPath = ctx.FileSystem.Path.Combine(outputPath, fromTo.To);
@@ -114,7 +203,10 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
                 logger.LogWarning("Cannot find configured file at path {Path} to copy, skipping", fromTo.From);
             }
         }
+    }
 
+    private void RenameFiles(ExecutionContext ctx, BuildServerConfiguration config, string outputPath)
+    {
         foreach (var fromTo in config.RenameFiles)
         {
             var srcPath = ctx.FileSystem.Path.Combine(outputPath, fromTo.From);
@@ -129,6 +221,11 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
                 logger.LogWarning("Cannot find configured file at path {Path} to rename", srcPath);
             }
         }
+    }
+
+    private async Task<HashSet<string>> IncludeExternalFiles(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, CancellationToken ct)
+    {
+        var executables = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var externalFile in config.IncludeExternalFiles.GetValueOrDefault(rid, []))
         {
@@ -158,34 +255,13 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
                 logger.LogInformation("{Path} passed SHA256 check {Sha}", destPath, downloadedSha256);
             }
 
-            if (!OperatingSystem.IsWindows() && externalFile.Executable)
+            if (externalFile.Executable)
             {
-                var mode = ctx.FileSystem.File.GetUnixFileMode(destPath)
-                    | UnixFileMode.GroupExecute | UnixFileMode.UserExecute;
-
-                ctx.FileSystem.File.SetUnixFileMode(destPath, mode);
+                executables.Add(NormalizeRelative(externalFile.To));
             }
         }
 
-        logger.LogTrace("Compressing {Path}", outputPath);
-
-        if (!ctx.FileSystem.Directory.Exists(config.OutputPath))
-            ctx.FileSystem.Directory.CreateDirectory(config.OutputPath);
-
-        var parent = ctx.FileSystem.Path.GetDirectoryName(outputPath)!;
-        var archiveName = $"{config.AppName.ToLowerInvariant()}-{rid}.tar.gz";
-
-        await new ProcessCommand.Builder(runner)
-            .WithLogLevel(config.LogLevel)
-            .WithExecutable(Tar)
-            .WithArguments("-czvf", $"{config.OutputPath}{archiveName}", "-C", parent, config.AppName)
-            .Build()
-            .RunAsync(ctx, ct);
-
-        sw.Stop();
-        logger.LogInformation("Completed build process for {Rid} in {TotalSeconds}s", rid, sw.Elapsed.TotalSeconds);
-
-
+        return executables;
     }
 
     private async Task<string> ComputeSha256Async(ExecutionContext ctx, string path, CancellationToken cancellationToken)
@@ -196,4 +272,6 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
         return Convert.ToHexString(hash);
     }
+
+    private static string NormalizeRelative(string path) => path.Replace('\\', '/').TrimStart('/');
 }

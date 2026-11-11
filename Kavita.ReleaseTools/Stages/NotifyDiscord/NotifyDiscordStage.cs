@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +50,16 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
 
         using var client = new DiscordWebhookClient(config.WebhookUrl);
 
-        await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon, embeds: [embedBuilder.Build()], text: msg);
+        try
+        {
+            await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon,
+                embeds: [embedBuilder.Build()], text: msg);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to notify Discord");
+            return;
+        }
 
         logger.LogInformation("Notified discord for version {Version} - {Message}", version, msg);
     }
