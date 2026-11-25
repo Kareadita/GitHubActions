@@ -113,7 +113,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             .RunAsync(ctx, ct);
     }
 
-    private async Task PackageBuild(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, IReadOnlySet<string> executables, CancellationToken ct)
+    internal async Task PackageBuild(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, IReadOnlySet<string> executables, CancellationToken ct)
     {
         var fs = ctx.FileSystem;
         logger.LogTrace("Compressing {Path}", outputPath);
@@ -223,9 +223,9 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
         }
     }
 
-    private async Task<HashSet<string>> IncludeExternalFiles(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, CancellationToken ct)
+    internal async Task<HashSet<string>> IncludeExternalFiles(ExecutionContext ctx, BuildServerConfiguration config, string rid, string outputPath, CancellationToken ct)
     {
-        var executables = new HashSet<string>(StringComparer.Ordinal);
+        var executables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var externalFile in config.IncludeExternalFiles.GetValueOrDefault(rid, []))
         {
@@ -236,10 +236,12 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             var response = await httpClient.GetAsync(externalFile.From, ct);
             response.EnsureSuccessStatusCode();
 
-            var dest = ctx.FileSystem.File.OpenWrite(destPath);
-            await response.Content.CopyToAsync(dest, ct);
+            var destDirectory = ctx.FileSystem.Path.GetDirectoryName(destPath);
+            if (!string.IsNullOrEmpty(destDirectory) && !ctx.FileSystem.Directory.Exists(destDirectory))
+                ctx.FileSystem.Directory.CreateDirectory(destDirectory);
 
-            dest.Close();
+            await using var dest = ctx.FileSystem.File.OpenWrite(destPath);
+            await response.Content.CopyToAsync(dest, ct);
 
             if (!string.IsNullOrEmpty(externalFile.Sha256))
             {
