@@ -137,6 +137,17 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             var relative = NormalizeRelative(fs.Path.GetRelativePath(outputPath, path));
             var entryName = $"{config.AppName}/{relative}";
 
+            var linkTarget = fs.FileInfo.New(path).LinkTarget;
+            if (linkTarget is not null)
+            {
+                await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.SymbolicLink, entryName)
+                {
+                    LinkName = linkTarget,
+                    Mode = DefaultFileMode,
+                }, ct);
+                continue;
+            }
+
             if (fs.Directory.Exists(path))
             {
                 await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, entryName + "/")
@@ -240,8 +251,11 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
             if (!string.IsNullOrEmpty(destDirectory) && !ctx.FileSystem.Directory.Exists(destDirectory))
                 ctx.FileSystem.Directory.CreateDirectory(destDirectory);
 
-            await using var dest = ctx.FileSystem.File.OpenWrite(destPath);
-            await response.Content.CopyToAsync(dest, ct);
+            // Ensure closed before ComputeSha256Async
+            await using (var dest = ctx.FileSystem.File.OpenWrite(destPath))
+            {
+                await response.Content.CopyToAsync(dest, ct);
+            }
 
             if (!string.IsNullOrEmpty(externalFile.Sha256))
             {
@@ -259,7 +273,7 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
             if (externalFile.Executable)
             {
-                executables.Add(NormalizeRelative(externalFile.To));
+                executables.Add(NormalizeRelative(ctx.FileSystem.Path.GetRelativePath(outputPath, destPath)));
             }
         }
 

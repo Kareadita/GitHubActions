@@ -48,10 +48,10 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
             return;
         }
 
-        using var client = new DiscordWebhookClient(config.WebhookUrl);
-
         try
         {
+            using var client = new DiscordWebhookClient(config.WebhookUrl);
+
             await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon,
                 embeds: [embedBuilder.Build()], text: msg);
         }

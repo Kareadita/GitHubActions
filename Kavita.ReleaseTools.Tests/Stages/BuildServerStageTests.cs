@@ -132,6 +132,77 @@ public class BuildServerStageTests : IDisposable
         Assert.Contains("bin/deep/tool", result);
     }
 
+    [Fact]
+    public async Task IncludeExternalFiles_DotSlashTo_MatchesPackageBuildLookup()
+    {
+        var outputPath = CreateOutputPath();
+        var archiveDir = Path.Combine(_root, "out") + "/";
+        Directory.CreateDirectory(archiveDir);
+
+        var externalFiles = new Dictionary<string, List<ExternalFile>>
+        {
+            ["linux-x64"] =
+            [
+                new ExternalFile { From = "https://example.com/tool", To = "./tool", Executable = true, Sha256 = "" }
+            ]
+        };
+
+        var stage = new BuildServerStage(NullLogger<BuildServerStage>.Instance, null!, new HttpClient(new StubHandler()));
+        var config = CreateConfig(archiveDir, externalFiles);
+        var ctx = CreateContext();
+
+        var executables = await stage.IncludeExternalFiles(ctx, config, "linux-x64", outputPath, CancellationToken.None);
+
+        Assert.Contains("tool", executables);
+
+        executables.Add(config.AppName);
+        await stage.PackageBuild(ctx, config, "linux-x64", outputPath, executables, CancellationToken.None);
+
+        var entries = await ReadEntriesAsync(Path.Combine(archiveDir, "kavita-linux-x64.tar.gz"));
+        Assert.True(entries.ContainsKey("Kavita/tool"));
+        Assert.True(entries["Kavita/tool"].Mode.HasFlag(UnixFileMode.UserExecute));
+    }
+
+    [Fact]
+    public async Task PackageBuild_StoresSymlinksAsLinks_WithoutTargetContent()
+    {
+        if (OperatingSystem.IsWindows())
+            return;
+
+        var outputPath = CreateOutputPath();
+        var archiveDir = Path.Combine(_root, "out") + "/";
+        Directory.CreateDirectory(archiveDir);
+
+        var outsideDir = Path.Combine(_root, "outside");
+        Directory.CreateDirectory(outsideDir);
+        var secretPath = Path.Combine(outsideDir, "secret.txt");
+        await File.WriteAllTextAsync(secretPath, "top-secret-content");
+
+        File.CreateSymbolicLink(Path.Combine(outputPath, "leak"), secretPath);
+        File.CreateSymbolicLink(Path.Combine(outputPath, "rel-link"), "../outside/secret.txt");
+
+        var stage = new BuildServerStage(NullLogger<BuildServerStage>.Instance, null!, new HttpClient());
+        var config = CreateConfig(archiveDir);
+
+        await stage.PackageBuild(CreateContext(), config, "linux-x64", outputPath,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Kavita" }, CancellationToken.None);
+
+        var entries = await ReadEntriesAsync(Path.Combine(archiveDir, "kavita-linux-x64.tar.gz"));
+
+        Assert.True(entries.ContainsKey("Kavita/leak"));
+        Assert.Equal(TarEntryType.SymbolicLink, entries["Kavita/leak"].EntryType);
+        Assert.Equal(secretPath, entries["Kavita/leak"].LinkName);
+
+        Assert.True(entries.ContainsKey("Kavita/rel-link"));
+        Assert.Equal(TarEntryType.SymbolicLink, entries["Kavita/rel-link"].EntryType);
+        Assert.Equal("../outside/secret.txt", entries["Kavita/rel-link"].LinkName);
+
+        var regularFiles = entries.Values.Where(e => e.EntryType == TarEntryType.RegularFile).Select(e => e.Name).ToList();
+        Assert.Equal(
+            ["Kavita/Kavita", "Kavita/appsettings.json", "Kavita/sub/tool"],
+            regularFiles.OrderBy(n => n, StringComparer.Ordinal).ToList());
+    }
+
     private sealed class StubHandler : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
