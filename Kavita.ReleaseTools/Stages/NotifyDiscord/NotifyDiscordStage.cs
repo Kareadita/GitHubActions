@@ -32,11 +32,6 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
 
         var msg = config.Message.Replace("{Version}", version);
 
-        var embedBuilder = new EmbedBuilder()
-            .WithTitle($"{version} - {config.PrTitle}")
-            .WithColor(Color.Green)
-            .WithDescription(BuildDescription(config));
-
         if (ctx.IsTest)
         {
             return;
@@ -51,6 +46,11 @@ public class NotifyDiscordStage(ILogger<NotifyDiscordStage> logger) : Configured
         try
         {
             using var client = new DiscordWebhookClient(config.WebhookUrl);
+
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"{version} - {config.PrTitle}")
+                .WithColor(Color.Green)
+                .WithDescription(BuildDescription(config));
 
             await client.SendMessageAsync(username: config.Username, avatarUrl: config.Icon,
                 embeds: [embedBuilder.Build()], text: msg);
