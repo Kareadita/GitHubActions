@@ -125,52 +125,60 @@ public class BuildServerStage(ILogger<BuildServerStage> logger, IProcessRunner r
 
         await using var fileStream = fs.File.Create(archivePath);
         await using var gzip = new GZipStream(fileStream, CompressionLevel.Optimal);
-        await using var tar = new TarWriter(gzip, TarEntryFormat.Pax);
+        await using var tarWriter = new TarWriter(gzip, TarEntryFormat.Pax);
 
-        await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, $"{config.AppName}/")
+        await tarWriter.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, $"{config.AppName}/")
         {
             Mode = DefaultDirMode,
         }, ct);
 
-        foreach (var path in fs.Directory.EnumerateFileSystemEntries(outputPath, "*", SearchOption.AllDirectories))
+        await WriteTree(tarWriter, outputPath, config.AppName);
+        return;
+
+        async Task WriteTree(TarWriter tar, string dirPath, string entryPrefix)
         {
-            var relative = NormalizeRelative(fs.Path.GetRelativePath(outputPath, path));
-            var entryName = $"{config.AppName}/{relative}";
-
-            var linkTarget = fs.FileInfo.New(path).LinkTarget;
-            if (linkTarget is not null)
+            foreach (var path in fs.Directory.EnumerateFileSystemEntries(dirPath))
             {
-                await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.SymbolicLink, entryName)
+                var entryName = $"{entryPrefix}/{fs.Path.GetFileName(path)}";
+
+                var linkTarget = fs.FileInfo.New(path).LinkTarget;
+                if (linkTarget is not null)
                 {
-                    LinkName = linkTarget,
-                    Mode = DefaultFileMode,
-                }, ct);
-                continue;
-            }
+                    await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.SymbolicLink, entryName)
+                    {
+                        LinkName = linkTarget,
+                        Mode = DefaultFileMode,
+                    }, ct);
+                    continue;
+                }
 
-            if (fs.Directory.Exists(path))
-            {
-                await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, entryName + "/")
+                if (fs.Directory.Exists(path))
                 {
-                    Mode = DefaultDirMode,
+                    await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.Directory, entryName + "/")
+                    {
+                        Mode = DefaultDirMode,
+                    }, ct);
+                    await WriteTree(tar, path, entryName);
+                    continue;
+                }
+
+                var relative = NormalizeRelative(fs.Path.GetRelativePath(outputPath, path));
+
+                // Keep file mode when possible
+                var mode = OperatingSystem.IsWindows() ? DefaultFileMode : fs.File.GetUnixFileMode(path);
+
+                if (executables.Contains(relative))
+                {
+                    mode |= ExecBits;
+                }
+
+                await using var data = fs.File.OpenRead(path);
+                await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.RegularFile, entryName)
+                {
+                    Mode = mode,
+                    DataStream = data,
                 }, ct);
-                continue;
             }
-
-            // Keep file mode when possible
-            var mode = OperatingSystem.IsWindows() ? DefaultFileMode : fs.File.GetUnixFileMode(path);
-
-            if (executables.Contains(relative))
-            {
-                mode |= ExecBits;
-            }
-
-            await using var data = fs.File.OpenRead(path);
-            await tar.WriteEntryAsync(new PaxTarEntry(TarEntryType.RegularFile, entryName)
-            {
-                Mode = mode,
-                DataStream = data,
-            }, ct);
         }
     }
 

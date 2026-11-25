@@ -203,6 +203,38 @@ public class BuildServerStageTests : IDisposable
             regularFiles.OrderBy(n => n, StringComparer.Ordinal).ToList());
     }
 
+    [Fact]
+    public async Task PackageBuild_DoesNotRecurseIntoDirectorySymlinks()
+    {
+        if (OperatingSystem.IsWindows())
+            return;
+
+        var outputPath = CreateOutputPath();
+        var archiveDir = Path.Combine(_root, "out") + "/";
+        Directory.CreateDirectory(archiveDir);
+
+        var outsideAssets = Path.Combine(_root, "outside-assets");
+        Directory.CreateDirectory(outsideAssets);
+        await File.WriteAllTextAsync(Path.Combine(outsideAssets, "extra.txt"), "outside-content");
+
+        File.CreateSymbolicLink(Path.Combine(outputPath, "assets"), outsideAssets);
+
+        var stage = new BuildServerStage(NullLogger<BuildServerStage>.Instance, null!, new HttpClient());
+        var config = CreateConfig(archiveDir);
+
+        await stage.PackageBuild(CreateContext(), config, "linux-x64", outputPath,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Kavita" }, CancellationToken.None);
+
+        var entries = await ReadEntriesAsync(Path.Combine(archiveDir, "kavita-linux-x64.tar.gz"));
+
+        Assert.True(entries.ContainsKey("Kavita/assets"));
+        Assert.Equal(TarEntryType.SymbolicLink, entries["Kavita/assets"].EntryType);
+        Assert.Equal(outsideAssets, entries["Kavita/assets"].LinkName);
+
+        Assert.False(entries.ContainsKey("Kavita/assets/extra.txt"));
+        Assert.False(entries.ContainsKey("Kavita/assets/"));
+    }
+
     private sealed class StubHandler : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
