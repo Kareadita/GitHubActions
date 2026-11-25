@@ -1,5 +1,6 @@
 using System.IO.Abstractions.TestingHelpers;
 using Kavita.ReleaseTools.Models;
+using Kavita.ReleaseTools.Stages;
 using Kavita.ReleaseTools.Stages.VersionBump;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -22,7 +23,7 @@ public class VersionBumpTests
          </Project>
          """;
 
-    private static (VersionBumpStage stage, ExecutionContext ctx, MockFileSystem fs) Arrange(string version, VersionComponent component, bool reset)
+    private static async Task<(VersionBumpStage stage, ExecutionContext ctx, MockFileSystem fs)> ArrangeAsync(string version, VersionComponent component, bool reset)
     {
         var fs = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -39,6 +40,10 @@ public class VersionBumpTests
                 ResetSmallerComponents = reset,
             }
         }, fs);
+
+        // ParseVersionStage always runs before VersionBumpStage in the real pipeline;
+        // it populates ctx.ReleaseVersion and ctx.VersionParseArtifacts
+        await new ParseVersionStage(Substitute.For<ILogger<ParseVersionStage>>()).ExecuteAsync(ctx, CancellationToken.None);
 
         return (new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()), ctx, fs);
     }
@@ -65,7 +70,7 @@ public class VersionBumpTests
     [MemberData(nameof(CsprojBumpTestData))]
     public async Task Execute_BumpsAssemblyVersionInCsproj(string version, VersionComponent component, bool reset, string expected)
     {
-        var (stage, ctx, fs) = Arrange(version, component, reset);
+        var (stage, ctx, fs) = await ArrangeAsync(version, component, reset);
 
         await stage.ExecuteAsync(ctx, CancellationToken.None);
 
@@ -76,7 +81,7 @@ public class VersionBumpTests
     [Fact]
     public async Task Execute_PreservesSurroundingCsprojContent()
     {
-        var (stage, ctx, fs) = Arrange("1.2.3", VersionComponent.Minor, reset: true);
+        var (stage, ctx, fs) = await ArrangeAsync("1.2.3", VersionComponent.Minor, reset: true);
 
         await stage.ExecuteAsync(ctx, CancellationToken.None);
 
@@ -104,7 +109,9 @@ public class VersionBumpTests
             }
         }, fs);
 
-        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));
+        // ParseVersionStage always runs first in the pipeline and throws when the
+        // AssemblyVersion element is missing
+        await Assert.ThrowsAsync<ExecutionException>(() => new ParseVersionStage(Substitute.For<ILogger<ParseVersionStage>>()).ExecuteAsync(ctx, CancellationToken.None));
     }
 
     [Fact]
@@ -134,7 +141,7 @@ public class VersionBumpTests
             }
         }, fs);
 
-        await Assert.ThrowsAsync<ExecutionException>(() => new VersionBumpStage(Substitute.For<ILogger<VersionBumpStage>>()).ExecuteAsync(ctx, CancellationToken.None));
+        await Assert.ThrowsAsync<ExecutionException>(() => new ParseVersionStage(Substitute.For<ILogger<ParseVersionStage>>()).ExecuteAsync(ctx, CancellationToken.None));
     }
 
     #region VersionBump (raw)

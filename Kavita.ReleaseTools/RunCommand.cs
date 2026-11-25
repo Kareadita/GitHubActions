@@ -192,12 +192,12 @@ public static class RunCommand
         services.AddScoped<IStage, VersionBumpStage>();
         services.AddScoped<IStage, RunScriptStage>();
         services.AddScoped<IStage, GenerateOpenApiStage>();
-        services.AddScoped<IStage, FlushGitChangesStage>();
         services.AddScoped<IStage, BuildFrontendStage>();
         services.AddScoped<IStage, BuildServerStage>();
         services.AddScoped<IStage, BuildLibraryStage>();
         services.AddScoped<IStage, PublishToNuGetStage>();
         services.AddScoped<IStage, DockerStage>();
+        services.AddScoped<IStage, FlushGitChangesStage>();
         services.AddScoped<IStage, CreateGitHubReleaseStage>();
         services.AddScoped<IStage, NotifyDiscordStage>();
         services.AddScoped<IStage, GitHubCommentsStage>();
